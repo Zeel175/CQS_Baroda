@@ -1,6 +1,6 @@
 # AD User Sync Hangfire Publish Steps
 
-The Hangfire dashboard and recurring AD sync job are now registered in the main API as well as the optional `CQSAirborne.Chroma.Integration.Service` worker. If you run the API on `https://localhost:44309`, open `https://localhost:44309/scheduler`; it uses the same host and port as Swagger, only a different path.
+Use these steps to publish the `CQSAirborne.Chroma.Integration.Service` Hangfire worker that automatically creates new database employee users from Active Directory.
 
 ## 1. Update configuration before publishing
 
@@ -13,25 +13,15 @@ In `appsettings.json`, verify these values:
 - `ADUserSync:DefaultPlantId`, `ADUserSync:DefaultOrgRole`, and `ADUserSync:DefaultCreatedBy` contain fallback values for inserted users.
 - `ADUserSync:DepartmentMappings` contains any AD department names that must be normalized before saving.
 
-## 2. Publish with the main API
+## 2. Publish the service
 
-Use this option when you want Swagger/API and Hangfire on the same URL and port. From the repository root, run:
-
-```powershell
-dotnet publish Services/CQSAirborne.Services.API/CQSAirborne.Services.API.csproj -c Release -o C:\Publish\CQS-API
-```
-
-After deployment, use `/swagger` for API documentation and `/scheduler` for Hangfire on the same base URL.
-
-## 3. Optional: publish the separate Hangfire service
-
-Use this only if you want Hangfire on a separate application/port. From the repository root, run:
+From the repository root, run:
 
 ```powershell
 dotnet publish Services/CQSAirborne.Chroma.Integration.Service/CQSAirborne.Chroma.Integration.Service.csproj -c Release -o C:\Publish\CQS-Hangfire
 ```
 
-## 4. Deploy to IIS
+## 3. Deploy to IIS
 
 1. Install the .NET Hosting Bundle on the server.
 2. Copy the publish folder to the server, for example `C:\inetpub\wwwroot\CQS-Hangfire`.
@@ -40,7 +30,7 @@ dotnet publish Services/CQSAirborne.Chroma.Integration.Service/CQSAirborne.Chrom
 5. Run the application pool under an identity that can access AD and SQL Server.
 6. Browse to `/scheduler` to confirm the Hangfire dashboard loads.
 
-## 5. Deploy as a Windows service alternative
+## 4. Deploy as a Windows service alternative
 
 If you do not want IIS, install the published executable as a Windows service:
 
@@ -49,7 +39,7 @@ sc.exe create CQS-Hangfire binPath= "C:\Publish\CQS-Hangfire\CQSAirborne.Chroma.
 sc.exe start CQS-Hangfire
 ```
 
-## 6. Verify the job
+## 5. Verify the job
 
 1. Open the Hangfire dashboard at `/scheduler`.
 2. Confirm recurring job `ad-user-sync-job` exists.
