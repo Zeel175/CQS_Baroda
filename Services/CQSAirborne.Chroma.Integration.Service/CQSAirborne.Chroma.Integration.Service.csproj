@@ -18,9 +18,7 @@
 		<PackageReference Include="Hangfire.SqlServer" Version="1.8.14" />
 
 		<!-- Swashbuckle for .NET 8 -->
-		<!--<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />-->
-
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 		
 		<!-- Newtonsoft.Json through NuGet (DO NOT reference DLL directly) -->
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
