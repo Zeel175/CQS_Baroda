@@ -45,6 +45,12 @@ namespace CQSAirborne.Chroma.Integration.Service
             services.AddTransient<EmployeeCsvService>();
             services.AddTransient<HangFIreService>();
             services.AddTransient<IADUserSyncService, ADUserSyncService>();
+            // Hangfire stores CLR type names in SQL. These registrations keep older queued/failed
+            // jobs executable after the service was renamed from CQS.Chroma.Integration.Service
+            // to CQSAirborne.Chroma.Integration.Service.
+            services.AddTransient<CQS.Chroma.Integration.Service.Helpers.EmployeeCsvService>();
+            services.AddTransient<CQS.Chroma.Integration.Service.Helpers.HangFIreService>();
+            services.AddTransient<CQS.Chroma.Integration.Service.Services.IADUserSyncService, CQS.Chroma.Integration.Service.Services.ADUserSyncService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CQS Web API", Version = "v1" });
