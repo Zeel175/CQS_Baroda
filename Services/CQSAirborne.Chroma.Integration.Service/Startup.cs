@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -76,7 +76,13 @@ namespace CQSAirborne.Chroma.Integration.Service
             services.AddHangfireServer();
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(options =>
+            {
+                // This service still uses the legacy app.UseMvc(...) route registration below.
+                // Endpoint routing is enabled by default on newer ASP.NET Core versions, and
+                // UseMvc is not compatible with endpoint routing.
+                options.EnableEndpointRouting = false;
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
