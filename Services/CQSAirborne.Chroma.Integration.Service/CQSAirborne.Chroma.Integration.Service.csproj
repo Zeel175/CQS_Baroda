@@ -23,10 +23,14 @@
 		
 		<!-- Newtonsoft.Json through NuGet (DO NOT reference DLL directly) -->
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.DirectoryServices" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\CQSAirborne.Model\CQSAirborne.Model.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Data.Contract\CQSAirborne.Data.Contract.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Data.Implementation\CQSAirborne.Data.Implementation.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Domain\CQSAirborne.Domain.csproj" />
 	</ItemGroup>
 
 </Project>
