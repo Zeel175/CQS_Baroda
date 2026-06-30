@@ -1,0 +1,56 @@
+﻿@model CQSAirborne.Model.Dashboard.ViewDocumentModel
+@{
+    ViewData["Title"] = "Document View";
+    ViewData["PageHeader"] = "Document View";
+    ViewData["CurrentPage"] = "Home";
+    Layout = null;
+}
+
+@{
+    var pageName = "Document View";
+    if (Model != null && Model.DocumentId != null && Model.ClickablePath != null && Model.ClickablePath.Count > 0)
+    {
+        pageName = Model.ClickablePath?.Where(a => a.Id == Model.DocumentId)?.FirstOrDefault()?.DocFullName ?? Model.ClickablePath?.Where(a => a.Id == Model.DocumentId)?.FirstOrDefault()?.Name;
+    }
+}
+<link rel="icon" type="image/png" href="~/assets/img/client/favicon.png">
+
+<title>@pageName</title>
+
+@*<div class="row">
+        <div class="col-md-12" id="breadCrumbContainer">
+        </div>
+        <div class="col-md-12">
+            <div id="panelbar"></div>
+        </div>
+    </div>
+
+    <script>
+        var navigationData = JSON.parse('@Html.Raw(Json.Serialize(Model.ClickablePath))');
+        var navigationTemplate = generateBreadCrumbPath(navigationData, @Model.DocumentId);
+        $("#breadCrumbContainer").html(navigationTemplate);
+    </script>*@
+<iframe width="99%" height="99%" id="docViewer" allowfullscreen webkitallowfullscreen frameborder="0" src="/ViewerJS/viewer.html?file=@Url.Action("GetPdfDocument","Home", new { @id=Model.DocumentId, documentOperationType = Model.DocumentOperationType })"></iframe>
+<style>
+    html {
+        overflow: hidden !important;
+    }
+</style>
+
+<script>
+    //var elem = document.getElementById("docViewer");
+    //function openFullscreen() {
+    //    if (elem.requestFullscreen) {
+    //        debugger;
+    //        console.log(elem.requestFullscreen);
+    //        elem.requestFullscreen();
+    //    } else if (elem.mozRequestFullScreen) { /* Firefox */
+    //        elem.mozRequestFullScreen();
+    //    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+    //        elem.webkitRequestFullscreen();
+    //    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    //        elem.msRequestFullscreen();
+    //    }
+    //}
+
+</script>

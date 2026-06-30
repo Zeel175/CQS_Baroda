@@ -1,0 +1,971 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.Dropdown
+@using CQSAirborne.Web.Infrastructure.Helpers.DatePicker
+@using CQSAirborne.Model.Core;
+
+@model CQSAirborne.Model.CPRMaster.CPRMasterModel
+@{
+    ViewData["Title"] = "Create CPR";
+    ViewData["CurrentPage"] = "CPR Form";
+
+    // Safety guards
+    var currentUserId = ViewBag.CurrentUserId is int v ? v : 0;
+
+    string rvhCsv = Model?.RelevantVerticalHeads ?? ""; // "1,5,9"
+    string poCsv = Model?.ProcessOwners ?? "";
+
+    bool iAmRVH = !string.IsNullOrWhiteSpace(rvhCsv)
+                  && rvhCsv.Split(',').Any(x => x.Trim() == currentUserId.ToString());
+    bool iAmPO = !string.IsNullOrWhiteSpace(poCsv)
+                  && poCsv.Split(',').Any(x => x.Trim() == currentUserId.ToString());
+
+    bool isAwaiting = (Model?.StatusId ?? 0) == Constants.CPRStatusType.Awaiting_Approval;
+
+    bool pendingForMe =
+        isAwaiting &&
+        (
+            ((Model?.StageId ?? 0) == Constants.CPRStage.Level_I && iAmPO) ||
+            ((Model?.StageId ?? 0) == Constants.CPRStage.Level_II && iAmRVH)
+        );
+
+    bool isRequestedUser = Model != null && Model.RequestedById != null && (currentUserId == Model.RequestedById) ? true : false;
+}
+
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+@*@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))*@
+
+<style>
+    .input-validation-error {
+        border: none !important;
+        border-bottom: 1px solid #dc3545 !important;
+    }
+
+    .hide-table-info {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Manage Company Procedure Review</h4>
+            </div>
+
+            <div class="card-body">
+                <form asp-action="CreateEdit" asp-controller="CPR" enctype="multipart/form-data"
+                      data-ajax="true" id="CreateEditCPRForm"
+                      data-ajax-method="POST" data-ajax-success="onSuccess"
+                      data-ajax-failure="onFailed" data-ajax-loading="#spinner"
+                      data-ajax-complete="onComplete">
+
+                    <div class="validation-summary-errors" id="ModelStateError"></div>
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="RequestedById" />
+                    <input type="hidden" asp-for="ActionRequested" id="ActionRequested" />
+                    <input type="hidden" asp-for="CPRRaisedDueTo" id="CPRRaisedDueTo" />
+                    <input type="hidden" asp-for="SessionId" id="SessionId" />
+
+                    <!-- Category / Document -->
+                    <div class="form-row" style="margin-top:15px;">
+                        @if (Model != null && Model.Id != null && Model.Id > 0)
+                        {
+                            <div class="col-md-3">
+                                <label class="form-control-label">CPR Unique No.</label>
+                                <input type="text" asp-for="CPRUniqueCode" class="form-control allTimeDisabled" />
+                            </div>
+                        }
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <label class="form-control-label">Category<span class="text-danger">*</span></label>
+                            @(Html.KendoDropDownListFor(w => w.CategoryId)
+                                .Read(Url.Action("GetAllCategory", "Category"))
+                                .DataTextField("name")
+                                .DataValueField("id")
+                                .OptionLabel("Select Category..")
+                                .HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                .Render())
+                            @Html.ValidationMessageFor(w => w.CategoryId)
+                        </div>
+                        <div class="col-md-6">
+
+                            <label class="form-control-label">Document@* <span class="text-danger">*</span> *@</label>
+                            @(Html.KendoDropDownListFor(w => w.DocumentId)
+                                .Read(Url.Action("GetAllDocumentList", "Document"))
+                                .DataTextField("name")
+                                .DataValueField("id")
+                                .OptionLabel("Select Document..")
+                                .Filter("Contains")
+                                .HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                .Render())
+                            @* @Html.ValidationMessageFor(w => w.DocumentId) *@
+                        </div>
+                    </div>
+
+                    <!-- Requested / CPR No / Dept Title -->
+                    <div class="form-row">
+                        <div class="col-md-3">
+                            <label class="form-control-label">Document No</label>
+                            <input type="text" asp-for="ManualDocumentNo" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-control-label">Request Date<span class="text-danger">*</span></label>
+                            @(Html.KendoDatePickerFor(w => w.RequestedDate)
+                                .HtmlAttributes(new { @class = "form-control", style = "width:100%" })
+                                .Format("dd-MMM-yyyy")
+                                .Render())
+                            @Html.ValidationMessageFor(w => w.RequestedDate)
+                        </div>
+                        @*<div class="col-md-3">
+                                <label class="form-control-label">CPR No (by QA)</label>
+                                <input type="text" asp-for="CPRNo" class="form-control" />
+                            </div>*@
+                        <div class="col-md-6">
+                            <label class="form-control-label">Document Title</label>
+                            <input type="text" asp-for="DepartmentTitle" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Dept / Rev / Program -->
+                    <div class="form-row">
+                        <div class="col-md-3">
+                            @Html.LabelFor(w => w.PlantId, "Plant")
+                            <select asp-for="PlantId" class="form-control editt" style="width: 100%">
+                                <option id="0" value="">Select Plant</option>
+                                @if (ViewBag.PlantList != null)
+                                {
+                                    foreach (var item in ViewBag.PlantList)
+                                    {
+                                        if (Model != null && Model.PlantId != null && Model.PlantId == item.Id)
+                                        {
+                                            <option id="@item.Id" selected value="@item.Id">@item.Code</option>
+                                        }
+                                        else
+                                        {
+                                            <option id="@item.Id" value="@item.Id">@item.Code</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(w => w.PlantId)
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-control-label">Department</label>
+                            <input type="text" asp-for="Department" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-control-label">Revision</label>
+                            <input type="text" asp-for="Revision" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-control-label">Program</label>
+                            <input type="text" asp-for="Program" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Action Requested / Raised Due To -->
+                    <div class="row form-group" style="margin-top:10px;">
+                        <div class="col-md-6">
+                            <h5 style="font-weight: bold;color: #00bcd4;">Action Requested</h5>
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <label class="mr-3"><input type="checkbox" class="ar" value="New Release" /> New Release</label>
+                                    <label class="mr-3"><input type="checkbox" class="ar" value="Revision" /> Revision</label>
+                                    <label class="mr-3"><input type="checkbox" class="ar" value="Obsolete" /> Obsolete</label>
+                                    <label class="mr-3"><input type="checkbox" class="ar" value="Others" /> Others</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 style="font-weight: bold;color: #00bcd4;">CPR raised due to</h5>
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <label class="mr-3"><input type="checkbox" class="rd" value="CIB change" /> CIB change</label>
+                                    <label class="mr-3"><input type="checkbox" class="rd" value="Improvement" /> Improvement</label>
+                                    <label class="mr-3"><input type="checkbox" class="rd" value="Audit output" /> Audit output</label>
+                                    <label class="mr-3"><input type="checkbox" class="rd" value="Others" /> Others</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Long text -->
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <label class="form-control-label">Section Requiring Change</label>
+                            <textarea asp-for="SectionRequiringChange" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <label class="form-control-label">Change Description</label>
+                            <textarea asp-for="ChangeDescription" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <label class="form-control-label">Reason for Change</label>
+                            <textarea asp-for="ReasonForChange" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Dates / Remarks -->
+                    <div class="form-row">
+
+                        <div class="col-md-12">
+                            <label class="form-control-label">Remarks</label>
+                            <textarea asp-for="Remarks" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Manage Approval -->
+                    <div style="padding: 10px; border: 2px solid #e4dfdf; margin-top: 13px;">
+                        <div class="form-row">
+                            <h5 style="font-weight: bold; color: #00bcd4; margin-left: 5px; font-size: 20px;">Manage Approval</h5>
+                        </div>
+                        <div class="form-row">
+
+                            <div class="col-md-6">
+                                @Html.LabelFor(w => w.StageId, "Stage")
+
+                                <select asp-for="StageId" class="form-control allTimeDisabled" style="width: 100%">
+                                    <option id="0" value="">Select Stage</option>
+                                    @if (ViewBag.StageList != null)
+                                    {
+                                        foreach (var item in ViewBag.StageList)
+                                        {
+                                            if (Model != null && Model.StageId != null && Model.StageId == item.Id)
+                                            {
+                                                <option id="@item.Id" selected value="@item.Id">@item.Name</option>
+                                            }
+                                            else
+                                            {
+                                                <option id="@item.Id" value="@item.Id">@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                @Html.ValidationMessageFor(w => w.StageId)
+                            </div>
+
+                            <div class="col-md-6">
+                                @Html.LabelFor(w => w.StatusId, "Status")
+
+                                <select asp-for="StatusId" class="form-control @(((pendingForMe != null && pendingForMe == true) && isRequestedUser == false) ? "allTimeDisabled" : "")" style="width: 100%">
+                                    <option id="0" value="">Select Status</option>
+                                    @if (ViewBag.StatusList != null)
+                                    {
+                                        foreach (var item in ViewBag.StatusList)
+                                        {
+                                            if (Model != null && Model.StatusId != null && Model.StatusId == item.Id)
+                                            {
+                                                <option id="@item.Id" selected value="@item.Id">@item.Name</option>
+                                            }
+                                            else
+                                            {
+                                                <option id="@item.Id" value="@item.Id">@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                @Html.ValidationMessageFor(w => w.StatusId)
+                            </div>
+
+                            <!-- Process Owner(s) -->
+                            <div class="col-md-6">
+
+                                @Html.RequiredLabelFor(w => w.ProcessOwners, "Reviewed by")
+                                <input type="hidden" asp-for="ProcessOwners" id="ProcessOwners" />
+                                <select id="ProcessOwnerIds" class="form-control multiselect" multiple="multiple">
+                                    <option id="select2AllOwners" value="0">Select All</option>
+                                    @if (ViewBag.EmployeeList != null)
+                                    {
+                                        var selectedOwnerIds = (Model != null && !string.IsNullOrWhiteSpace(Model.ProcessOwners))
+                                            ? Model.ProcessOwners.Split(",")
+                                            : new string[0];
+
+                                        foreach (var item in ViewBag.EmployeeList)
+                                        {
+                                            var data = selectedOwnerIds.Any(a => a.ToString().Trim() == item.Id.ToString());
+                                            if (data)
+                                            {
+                                                <option id="@item.Id" selected value="@item.Id">@item.EmployeeName</option>
+                                            }
+                                            else
+                                            {
+                                                <option id="@item.Id" value="@item.Id">@item.EmployeeName</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Relevant Vertical Head(s) -->
+                            <div class="col-md-6">
+                                @*<label class="form-control-label">Relevant Vertical Head(s)</label>*@
+                                @Html.RequiredLabelFor(w => w.RelevantVerticalHeads, "Approved by")
+                                <input type="hidden" asp-for="RelevantVerticalHeads" id="RelevantVerticalHeads" />
+                                <select id="RelevantVerticalHeadIds" class="form-control multiselect" multiple="multiple">
+                                    <option id="select2AllHeads" value="0">Select All</option>
+                                    @if (ViewBag.EmployeeList != null)
+                                    {
+                                        var selectedHeadIds = (Model != null && !string.IsNullOrWhiteSpace(Model.RelevantVerticalHeads))
+                                            ? Model.RelevantVerticalHeads.Split(",")
+                                            : new string[0];
+
+                                        foreach (var item in ViewBag.EmployeeList)
+                                        {
+                                            var data = selectedHeadIds.Any(a => a.ToString().Trim() == item.Id.ToString());
+                                            if (data)
+                                            {
+                                                <option id="@item.Id" selected value="@item.Id">@item.EmployeeName</option>
+                                            }
+                                            else
+                                            {
+                                                <option id="@item.Id" value="@item.Id">@item.EmployeeName</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <!-- Attachments (single area: upload + one grid for both saved and session files) -->
+                    <div style="padding: 10px; border: 2px solid #e4dfdf; margin-top: 13px; margin-bottom: 15px;">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <h4 style="font-weight: bold;color: #00bcd4;font-size: 20px;">Attachments</h4>
+                                <small>(Uploaded now will appear below immediately. Existing files are preloaded into the same list.)</small>
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="file" id="FileProcessMessage" name="DocumentDetails" style="z-index: 1; opacity: 1; min-height: 38px; padding: 6px; font-size: 16px; " class="form-control" />
+                                    <span data-validation="FileMessage" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding-top:0px">
+                                <button id="addUploadFile" type="button" title="Upload Documents" style="padding: 12px;"
+                                        class="btn btn-primary btn-sm">
+                                    @*<i class="fa fa-plus-circle"></i>*@
+                                    Upload
+                                </button>
+                            </div>
+                            <div class="row form-group col-md-6 @(Model.DocumentFilePath != null ? "" : "hidden")">
+                                <table id="Documents" style="margin-left: 11px;" class="table table-bordered table-striped table-nomargin-nopadding">
+                                    <thead>
+                                        <tr>
+                                            <th>Documents</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.DocumentFilePath != null)
+                                        {
+                                            var list = Model.DocumentFilePath.Split(',');
+                                            @foreach (var li in list)
+                                            {
+                                                <tr data-name='@li' data-filepath="@li">
+                                                    <td><a target="_blank" href="../../CPR/DownloadCPRAttachment?FileName=@(li)"><i class="fa fa-download"></i> @li</a></td>
+                                                    <td>
+                                                        <a onClick='RemoveRowAndHideHeaderGenuine(this);' style='cursor: pointer;' class='text-danger'><span class='fa fa-remove'></span></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row form-group hidden">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.HiddenFor(w => w.DocumentFilePath)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if ((ViewBag.IsAdmin != null && ViewBag.IsAdmin == true) &&
+            (Model != null && Model.StatusId != null && Model.StatusId == Constants.CPRStatusType.Approved))
+                    {
+                        <div style="padding: 10px; border: 2px solid #e4dfdf; margin-top: 13px; margin-bottom: 15px;">
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <h4 style="font-weight: bold;color: #00bcd4;font-size: 20px;">QMS Admin Approval</h4>
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-left: 0px;">
+                                <div class="col-md-3">
+                                    @Html.LabelFor(w => w.EDC, "EDC")
+                                    @(Html.KendoDatePickerFor(w => w.EDC)
+                                .HtmlAttributes(new { @class = "form-control", style = "width:100%" })
+                                .Format("dd-MMM-yyyy")
+                                .Render())
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.LabelFor(w => w.ADC, "ADC")
+                                    @(Html.KendoDatePickerFor(w => w.ADC)
+                                .HtmlAttributes(new { @class = "form-control", style = "width:100%" })
+                                .Format("dd-MMM-yyyy")
+                                .Render())
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="margin-left: 0px;">
+                                <div class="col-md-12" style="padding: 11px 14px 0px; margin-top: 14px; margin-bottom: 6px; background: aliceblue; border-radius: 8px;">
+                                    <label class="mr-3" style="color: #09b6cc;">
+                                        <input type="checkbox" asp-for="IsClosed" class="csGroup" />
+                                        Do you want to close this application?
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row @(Model.AdminStatusId == Constants.CPRStatusType.Approved || Model.AdminStatusId == Constants.CPRStatusType.Rejected ? "hidden": "")">
+                                <div class="col-md-12">
+                                    <button type="button" id="btnApproveByAdmin" class="btn btn-success mr-2">
+                                        <i class="fa fa-check mr-1"></i> Approve &amp; Release
+                                    </button>
+                                    <button type="button" id="btnRejectByAdmin" class="btn btn-danger">
+                                        <i class="fa fa-times mr-1"></i> Reject
+                                    </button>
+                                    <span id="approveSpinner" class="ml-2" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!pendingForMe && Model.IsClosed != true)
+                    {
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <input type="button" value="Save" class="btn btn-primary" onclick="return submitHandler()" />
+                                <span id="spinner" style="display:none;"><i class="fa fa-spinner"></i></span>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-row">
+                        @if (pendingForMe)
+                        {
+                            <div id="approvalPanel" class="card mt-3">
+                                <div class="card-header" style="background:#f6f9ff">
+                                    <strong>Approval pending for you</strong>
+                                    <span class="badge badge-info ml-2">
+                                        @(Model.StageId == Constants.CPRStage.Level_I ? "Level I (Process Owner)" : "Level II (Relevant Vertical Head)")
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="ApprovalRemarks">Remarks (optional)</label>
+                                        <textarea id="ApprovalRemarks" class="form-control" rows="2" placeholder="Add any note for this action..."></textarea>
+                                    </div>
+
+                                    <div>
+                                        <button type="button" id="btnApprove" class="btn btn-success mr-2">
+                                            <i class="fa fa-check mr-1"></i> Approve
+                                        </button>
+                                        <button type="button" id="btnReject" class="btn btn-danger">
+                                            <i class="fa fa-times mr-1"></i> Reject
+                                        </button>
+                                        <span id="approveSpinner" class="ml-2" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
+                                    </div>
+
+                                    <small class="text-muted d-block mt-2">
+                                        • Approve at Level I moves request to Level II (Awaiting Approval).<br />
+                                        • Approve at Level II marks request as Approved. Reject keeps current level and marks as Rejected.
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </form>
+
+                @*<div class="mt-3">
+                        <a asp-action="Index">Back to List</a>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/lib/SweetAlert/SweetAlert.js"></script>
+
+@* Vars used by ~/js/document.js (point to CPR endpoints) *@
+
+<script>
+    var onSuccess = function (data) {
+        Swal.fire({
+            title: 'Success!',
+            text: 'Saved successfully.',
+            icon: 'success',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Ok',
+            allowEscapeKey: true
+        }).then((result) => {
+            if (result.value) window.location.reload();
+            if (result.dismiss === Swal.DismissReason.timer) window.location.reload();
+        });
+    };
+    var onFailed = function (data) { $.validator.unobtrusive.parse($(data)); };
+    var onComplete = function () { $("#spinner").hide(); };
+
+
+
+    // Delete handler for rows already saved in DB
+    function deleteSavedAttachment(id, el){
+        Swal.fire({
+            title: 'Delete this attachment?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete',
+            cancelButtonText: 'Cancel'
+        }).then(function(res){
+            if(!res.value) return;
+
+            $.ajax({
+                url: '@Url.Action("DeleteAttachment","CPR")',
+                type: 'POST',
+                data: { attachmentId: id },
+                success: function(){
+                    $(el).closest("tr").remove();
+                    toastr.success("Deleted!");
+                },
+                error: function(){ toastr.error("Failed to delete."); }
+            });
+        });
+    }
+
+    // checkbox groups -> hidden fields
+    function collectCheckboxValues(cls) {
+        var vals = [];
+        $("input." + cls + ":checked").each(function () { vals.push($(this).val()); });
+        return vals.join(",");
+    }
+
+    // multiselect helpers (fSelect)
+    $(document).ready(function () {
+        $('.allTimeDisabled').attr("disabled", "disabled");
+        $('.multiselect').fSelect({ placeholder: 'Select user(s)...' });
+
+        var ar = "@(Model?.ActionRequested ?? "")".split(',');
+        $("input.ar").each(function () { if (ar.indexOf($(this).val()) >= 0) $(this).prop("checked", true); });
+
+        var rd = "@(Model?.CPRRaisedDueTo ?? "")".split(',');
+        $("input.rd").each(function () { if (rd.indexOf($(this).val()) >= 0) $(this).prop("checked", true); });
+
+        // initial sync for hidden fields
+        syncHidden('#RelevantVerticalHeadIds', '#RelevantVerticalHeads');
+        syncHidden('#ProcessOwnerIds', '#ProcessOwners');
+
+        $('#RelevantVerticalHeadIds').on('change', function () {
+            selectAllIfNeeded(this);
+            syncHidden('#RelevantVerticalHeadIds', '#RelevantVerticalHeads');
+        });
+        $('#ProcessOwnerIds').on('change', function () {
+            selectAllIfNeeded(this);
+            syncHidden('#ProcessOwnerIds', '#ProcessOwners');
+        });
+
+
+    });
+
+    function syncHidden(selectSel, hiddenSel) {
+        var vals = $(selectSel).val() || [];
+        vals = vals.filter(function (v) { return v !== '0'; });
+        $(hiddenSel).val(vals.join(','));
+    }
+    function selectAllIfNeeded(selectEl) {
+        var $sel = $(selectEl), vals = $sel.val() || [];
+        if (vals.indexOf('0') >= 0) {
+            var all = $sel.find('option').map(function () { return this.value; }).get()
+                .filter(function (v) { return v !== '0'; });
+            $sel.val(all).trigger('change.fs');
+        }
+    }
+
+    var submitHandler = () => {
+
+        $("#ActionRequested").val(collectCheckboxValues("ar"));
+        $("#CPRRaisedDueTo").val(collectCheckboxValues("rd"));
+        syncHidden('#RelevantVerticalHeadIds', '#RelevantVerticalHeads');
+        syncHidden('#ProcessOwnerIds', '#ProcessOwners');
+        var ok = true;
+        if (!$("#RequestedDate").val()) ok = false;
+        if (!$("#Department").val()) ok = false;
+        if (!$("#SectionRequiringChange").val()) ok = false;
+        if (!$("#ChangeDescription").val()) ok = false;
+        if (!$("#ReasonForChange").val()) ok = false;
+
+        if (!$("#CategoryId").val()) ok = false;
+        // if (!$("#DocumentId").val()) ok = false;
+
+        var processOwners = $('#ProcessOwners').val();
+        var relevantHeads = $('#RelevantVerticalHeads').val();
+
+        //if (!processOwners || processOwners.trim() === "") {
+        //    alert("Please select Process Owner(s).");
+        //    return false;
+        //}
+
+        //if (!relevantHeads || relevantHeads.trim() === "") {
+        //    alert("Please select Relevant Vertical Head(s).");
+        //    return false;
+        //}
+
+        $("#spinner").show();
+        var listName = "";
+        $("#Documents > tbody > tr").each(function () {
+            var Name = $(this).data("name");
+
+            if (listName == "") {
+                listName = Name;
+            }
+            else {
+                listName = listName + "," + Name;
+            }
+        });
+        $("#CreateEditCPRForm").prepend("<input type='hidden' name='DocumentFilePath1' value='" + listName + "'>");
+
+        if ($("#CreateEditCPRForm").valid() && ok == true) {
+            $("#spinner").show();
+            $('.allTimeDisabled').removeAttr("disabled");
+            $("#CreateEditCPRForm").submit();
+            return true;
+        }
+        return false;
+    }
+</script>
+<script>
+
+    function uploadFile(event) {
+
+            $("#global-loader").show();
+
+       // $(event.target).parent().append('<div id="progress-wrp"><div class="progress-bar"></div><div class="status">0%</div></div>');
+            $("#global-loader").append('<div id="progress-wrp"><div class="progress-bar"></div><div class="status">0%</div></div>');
+        var file = $(event.target)[0].files[0];
+        var upload = new Upload(file);
+
+        // maby check size or type here with upload.getSize() and upload.getType()
+
+        // execute upload
+        upload.doUpload(event.target);
+    };
+
+    var Upload = function (file) {
+        this.file = file;
+    }
+
+    Upload.prototype.getType = function () {
+        return this.file.type;
+    };
+    Upload.prototype.getSize = function () {
+        return this.file.size;
+    };
+    Upload.prototype.getName = function () {
+        return this.file.name;
+    };
+
+    Upload.prototype.doUpload = function (file) {
+        var that = this;
+        var formData = new FormData();
+
+        // add assoc key values, this will be posts values $(event.target)[0].files
+        //formData.append("file", this.file, this.getName());
+        $.each($(event.target)[0].files, function (index, value) {
+            formData.append("file", value,value.name);
+        })
+
+        formData.append("upload_file", true);
+
+      /*  var tempId = $(file).data("tempid");*/
+        var folderName = $(file).data("folder");
+        var documentName = $(file).data("docid");
+
+        var finalurl = `@Url.Action("UploadDocument1", "CPR")`;
+        $.ajax({
+            type: "POST",
+            url: finalurl,
+            xhr: function () {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    myXhr.upload.addEventListener('progress', that.progressHandling, false);
+                }
+                return myXhr;
+            },
+            success: function (data) {
+                // your callback here
+                $("#progress-wrp .progress-bar").css("width", "100%");
+                $("#progress-wrp .status").text("100%");
+                $("#progress-wrp").remove();
+                //HideSpinner()
+                //file.previousElementSibling.value = 1;
+                $("#" + documentName).val(data.filestring);
+                $("#" + documentName).prev().find("btnRemoveDoc").removeClass("hidden");
+                //$RelativeElement.prev().attr("href", "../../application/DownloadDocuments?filePath=" + data.filePath);
+
+                var pathstr = "";
+                var fnStringArray = data.filestring.split(",");
+                $.each(fnStringArray, function (index, value) {
+                    pathstr = pathstr + `<span class="fa fa-download" style="color:#1173b9 !important;padding-right:6px"></span><a target="_blank" style="font-weight:bold" href="../../CPR/DownloadCPRAttachment?FileName=${value}">${value}</a><br />`
+                });
+                var strAppend = `<div class='docList'>${pathstr}</div>`;
+
+                $("#" + documentName).parent().find(".docList").remove();
+                $("#" + documentName).parent().append(strAppend);
+
+                $("#global-loader").hide();
+
+                toastr.success("Document uploaded successfully!");
+
+            },
+            error: function (error) {
+                that.file=null;
+                $("#progress-wrp").remove()
+                $("#global-loader").hide();
+                swal({
+                    title: "Oh Snap!",
+                    text: "Something Went Wrong! Please try to upload file again.",
+                    icon: "error",
+                });
+                //$RelativeElement.addClass("hidden");
+                // handle error
+            },
+            async: true,
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            timeout: 600000
+        });
+    };
+
+    Upload.prototype.progressHandling = function (event) {
+        var percent = 0;
+        var position = event.loaded || event.position;
+        var total = event.total;
+        var progress_bar_id = "#progress-wrp";
+        if (event.lengthComputable) {
+            percent = Math.ceil(position / total * 99);
+        }
+        // update progressbars classes so it fits your code
+        $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
+        $(progress_bar_id + " .status").text(percent + "%");
+    };
+
+    function FileNameIsValid(str) {
+        var regex = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/);
+        return regex.test(str);
+    }
+
+    $("#addUploadFile").click(function () {
+
+        if ($('#FileProcessMessage')[0].files.length == 0) {
+            $('#FileProcessMessage').siblings('span').html('Please Upload File.');
+        }
+        else {
+            $('#FileProcessMessage').siblings('span').html('');
+        }
+
+
+        var fd = new FormData();
+        var files = $('#FileProcessMessage')[0].files[0];
+
+        //var valid = FileNameIsValid(files.name);
+        //if (valid == true) {
+        //    $('#FileProcessMessage').siblings('span').html('File name should not contain any special charactor.');
+        //    return;
+        //}
+
+        if (files.name != null && files.name != undefined && files.name.indexOf(',') > 0) {
+            $('#FileProcessMessage').siblings('span').html('File name should not contain the comma within name.');
+            return;
+        }
+        else {
+            $('#FileProcessMessage').siblings('span').html('');
+        }
+
+        fd.append('file', files);
+        fd.append("upload_file", true);
+
+        $("#spinner").show();
+
+        $.ajax({
+            url: '../../CPR/UploadDocument1',
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response != "") {
+
+                    var fnStringArray = response.filestring.split(",");
+
+                    $("#Documents").parent().removeClass("hidden");
+
+                    $.each(fnStringArray, function (index, value) {
+                        if (value != '') {
+                            $("#Documents > tbody").append("<tr data-name='" +
+                                value + "' data-filepath='" + value + "'  >" +
+                                "<td><a target='_blank' href='../../CPR/DownloadCPRAttachment?FileName=" + value + "'><i class='fa fa-download'></i>" + value + "</a></td>" +
+                                "<td><a onClick='RemoveRowAndHideHeaderGenuine(this);' style='cursor: pointer;' class='text-danger' ><span class='fa fa-remove'></span></a></td></tr>");
+                        }
+                    });
+                    $('#FileProcessMessage').val('');
+                }
+                else {
+                    alert('file not uploaded');
+                }
+
+                $("#spinner").hide();
+            },
+            error: function () {
+                $("#spinner").hide();
+            }
+        });
+
+    });
+
+    function RemoveRowAndHideHeaderGenuine(id) {
+        var $table = $(id).parents("table");
+        $(id).closest("tr").remove();
+        if ($table.find("tbody").find("tr").length == 0) {
+            $table.parent().addClass("hidden");
+        }
+    };
+
+
+</script>
+<script>
+    (function () {
+
+        const updateUrl = '@Url.Action("UpdateStageStatus", "CPR")';
+        const cprId = @Model.Id;
+
+        // Constants from backend (mirror your C# constants)
+        const Status = {
+            Open: 9,
+            Awaiting_Approval: 10,
+            Approved: 11,
+            Rejected: 12
+        };
+
+        $("#btnApprove").on("click", function () {
+            sendAction(Status.Approved, false);
+        });
+
+        $("#btnReject").on("click", function () {
+            sendAction(Status.Rejected, false);
+        });
+
+        $("#btnApproveByAdmin").on("click", function () {
+            sendAction(Status.Approved, true);
+        });
+
+        $("#btnRejectByAdmin").on("click", function () {
+            sendAction(Status.Rejected, true);
+        });
+
+        function sendAction(requestedStatusId, isFromAdminSide) {
+            $("#approveSpinner").show();
+            const model = {
+                CPRId: cprId,
+                RequestedStatusId: requestedStatusId,
+                Remarks: $("#ApprovalRemarks").val(),
+                IsFromAdminSide: isFromAdminSide,
+                EDC: $('#EDC').val(),
+                ADC: $('#ADC').val(),
+                IsClosed: $('#IsClosed').prop('checked')
+            };
+            //debugger;
+            $.ajax({
+                url: updateUrl,
+                type: "POST",
+                data: JSON.stringify(model), // Convert to JSON string
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                    $("#approveSpinner").hide();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Done',
+                        text: 'Action completed successfully.'
+                    }).then(() => window.location.reload());
+                },
+                error: function () {
+                    $("#approveSpinner").hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops',
+                        text: 'Failed to perform action. Please try again.'
+                    });
+                }
+            });
+        }
+
+    })();
+</script>
+<script>
+$(document).ready(function() {
+
+    // Handle plant change
+    $("#PlantId").on("change", function () {
+        debugger;
+        var plantId = $(this).val();
+        if (!plantId) {
+            // clear both if no plant selected
+            clearEmployeeDropdowns();
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetEmployeesByPlant", "CPR")', // or EmployeeController if used there
+            type: 'GET',
+            data: { plantId: plantId },
+            success: function (response) {
+                if (response && response.data) {
+                    // repopulate both dropdowns
+                    populateEmployeeMultiSelect("#ProcessOwnerIds", response.data);
+                    populateEmployeeMultiSelect("#RelevantVerticalHeadIds", response.data);
+                }
+            },
+            error: function () {
+                toastr.error("Failed to load employees for selected plant.");
+            }
+        });
+    });
+
+    function clearEmployeeDropdowns() {
+        $("#ProcessOwnerIds").empty().append('<option value="">Select</option>');
+        $("#RelevantVerticalHeadIds").empty().append('<option value="">Select</option>');
+        $("#ProcessOwnerIds, #RelevantVerticalHeadIds").trigger('change.fs'); // refresh multiselect UI
+        $('.multiselect').fSelect('reload');
+    }
+
+    function populateEmployeeMultiSelect(selectId, data) {
+        var $select = $(selectId);
+        $select.empty();
+        $select.append('<option id="select2All" value="0">Select All</option>');
+        $.each(data, function (i, emp) {
+            $select.append('<option value="' + emp.id + '">' + emp.employeeName + '</option>');
+        });
+        $select.trigger('change.fs'); // refresh fSelect plugin
+        syncHidden(selectId, selectId.replace("Ids", "")); // keep hidden in sync
+        $('.multiselect').fSelect('reload');
+    }
+
+});
+</script>

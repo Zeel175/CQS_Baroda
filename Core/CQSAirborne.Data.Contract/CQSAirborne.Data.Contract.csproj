@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <!--<TargetFramework>net462</TargetFramework>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CQSAirborne.Domain\CQSAirborne.Domain.csproj" />
+    <ProjectReference Include="..\CQSAirborne.Model\CQSAirborne.Model.csproj" />
+  </ItemGroup>
+
+</Project>

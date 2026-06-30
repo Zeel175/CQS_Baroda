@@ -1,0 +1,135 @@
+﻿@model CQSAirborne.Model.Document.DocumentHistoryMainModel
+@{
+
+}
+@*<script src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"></script>*@
+<script src="~/js/dataTables.fixedColumns.min.js"></script>
+<h4 class="title">Document History</h4>
+<div class="table-responsive">
+    <table id="documentHistoryGrid" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+        <thead class="text-primary">
+            <tr>
+                @*<th>Doc. Code</th>*@
+                <th>Doc. Unique No.</th>
+                <th style="width:100px">Document Name</th>
+                <th>Process Owner</th>
+                <th>CPR Number</th>
+                <th>Rev. No.</th>
+                <th>Reason for Change</th>
+                <th style="white-space:normal !important">Revision Date</th>
+                @*<th>Category</th>*@
+                <th style="white-space:normal !important">InActive Date</th>
+                @*<th style="white-space:normal !important">Actual InActive Date</th>*@
+                @foreach (var plant in Model.Plants.OrderBy(w => w.DisplayOrder))
+                {
+                    <th>@plant.Code</th>
+                }
+                <th>Action</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    var documentHistoryUrl = '@Url.Action("GetDocumentHistoryData","Document", new { id = Model.DocumentId })';
+</script>
+<script>
+    var grid;
+    $(document).ready(function () {
+
+        var plants = JSON.parse('@Html.Raw(Json.Serialize(Model.Plants))');
+        plants = _.sortBy(plants, "displayOrder");
+        var columns = [
+            //{ "data": "code" },
+        { "data": "documentNumber" },
+        { "data": "name" },
+        { "data": "processOwner" },
+        { "data": "cprNumber" },
+            { "data": "revisionNumber" },
+            { "data": "reasonForChange" },
+            { "data": "uploadDate" },
+            //{ "data": "category" },
+            { "data": "inActiveDt" }
+            //,{ "data": "actualInActiveDt" }
+        ];
+
+        $.each(plants, function (i, v) {
+            columns.push({
+                "data": null,
+                "searchable": false,
+                "orderable": false,
+                "mRender": function (data, type, row) {
+                    debugger;
+                    var documentPlant = row.plants.filter(function (w) {
+                        return w.plantId == v.id;
+                    })[0];
+
+                    if (documentPlant != null && documentPlant != undefined) {
+                        debugger;
+                        var template = kendo.template($("#view-download-template").html());
+
+                        var documentType = (row.documentTypeCode == '@CQSAirborne.Model.Core.Constants.DocumentType.Global') ? @((int)CQSAirborne.Model.Core.DocumentOperationType.Common) : @((int)CQSAirborne.Model.Core.DocumentOperationType.History);
+                        if (documentType == @((int)CQSAirborne.Model.Core.DocumentOperationType.Common)) {
+                            documentPlant.id = @Model.DocumentId;
+                        }
+
+                        return template({ displayName: documentPlant.documentDisplayName, id: documentPlant.id, canDownload: documentPlant.canDownload, documentType: documentType });
+                    }
+
+                    return "";
+                }
+            });
+        });
+
+        columns.push({
+            "data": null,
+            "mRender": function (data, type, row) {
+                var template = "<a href='/Document/Edit?id=" + "@Model.DocumentId" + "&&historyId=" + row.id + "'> <i class='fa fa-pencil'></i></a>";
+                return template;
+            },
+            "searchable": false,
+            "orderable": false
+            //,"className": "center-content"
+        });
+
+        grid = $('#documentHistoryGrid').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": true,
+            "fixedColumns'": {
+                leftColumns: 1,
+                rightColumns: 1
+            },
+            "columns": columns,
+            "columnDefs": [
+                { targets: [0, 1], "width": "10%" },
+                { targets: 2, "width": "10%" },
+                {
+                    targets: 6, render: function (data) {
+                        return moment(data).format('DD/MM/YYYY');
+                    }
+                }
+                ],
+
+            "ajax": {
+                "url": documentHistoryUrl,
+                "type": "POST",
+            }
+        });
+    });
+
+</script>
+
+<script type="text/html" id="view-download-template">
+    <div class="btn-group">
+        <button class="btn btn-secondary btn-sm dropdown-toggle dashboard-grid-fix-button" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            #=displayName#
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" target="_blank" href='/Home/ViewDocument/#:id#/#:documentType#'>View</a>
+            #if(canDownload == true){#
+            <a class="dropdown-item" download target='_blank' href='/Home/DownloadDocument/#:id#/#:documentType#'>Download</a>
+            #}#
+        </div>
+    </div>
+</script>

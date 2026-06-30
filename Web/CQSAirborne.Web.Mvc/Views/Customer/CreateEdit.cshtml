@@ -1,0 +1,452 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.DropZone
+@using CQSAirborne.Web.Infrastructure.Helpers.Dropdown
+@using CQSAirborne.Web.Infrastructure.Helpers.DatePicker
+@using CQSAirborne.Web.Infrastructure.Helpers.Editor
+
+@model CQSAirborne.Model.Customer.AddEditCustomerModel;
+@{
+    ViewData["Title"] = "Create/Edit Customer";
+}
+
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))
+
+<script>
+
+    function onDocumentChange(data) {
+        $("#idAttachment").hide();
+        $("#PictureId").val("");
+        var dataUrl = '@Url.Action("GetAllAttachmentListByDocumentId", "Document")';
+       // var categoryElement = $("#PictureId").data("kendoDropDownList");
+        var document = $("#DocumentId").data("kendoDropDownList");
+        var docId = $("#DocumentId").val();
+        if (docId != null && docId > 0) {
+            $("#idAttachment").show();
+            $.get(dataUrl + "?Id=" + $("#DocumentId").val(), function (data) {
+
+
+                var parameter = $("#PictureId").kendoDropDownList({
+                    optionLabel: "Select Attachment..",
+                    dataTextField: "name",
+                    dataValueField: "id",
+                    autoBind: false,
+                    dataSource: data
+                }).data("kendoDropDownList");
+
+
+                if (data.length > 0) {                    setTimeout(() => {
+                        parameter.value(data[0].id);
+                    }, 1000)
+                }
+                else {
+                    $("#PictureId").val("");
+                }
+            })
+        }
+        else {
+            $("#PictureId").val("");
+        }
+    }
+
+</script>
+<style>
+    .input-validation-error {
+        border: none !important;
+        border-bottom: 1px solid #dc3545 !important
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Manage Customer</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateEdit" asp-controller="Customer" data-ajax="true" id="CreateEditCustomerForm" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailed" data-ajax-loading="#spinner" data-ajax-complete="onComplete">
+                    <div class="validation-summary-errors" id="ModelStateError"></div>
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="IsSendEmail" />
+
+                    <div class="form-row" style="margin-top:15px;">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-control-label">Customer Name</label>
+                                <input type="text" asp-for="CustomerName" class="form-control" />
+                                <span asp-validation-for="CustomerName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-control-label">Contact Number</label>
+                                <input type="number" asp-for="ContactNumber" maxlength="10" class="form-control" />
+                                @*<span asp-validation-for="ContactNumber" class="text-danger"></span>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-control-label">Email</label>
+                                <input type="email" asp-for="Email" class="form-control tagsinput" data-role="tagsinput" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="form-control-label">Password</label>
+                                <input type="text" asp-for="Password" maxlength="10" class="form-control ignoreKeyPress" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.Id != null && Model.Id != 0)
+                    {
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <h4 style="font-weight: bold;color: #00bcd4;font-size: 20px;margin-left: -15px;">Customer Document Mapping</h4>
+                            </div>
+                        </div>
+                        <hr style="margin-top: 0px !important;" />
+
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                @Html.LabelFor(w => w.DocumentId)
+                                @(Html.KendoDropDownListFor(w => w.DocumentId)
+                                            .Read(Url.Action("GetAllDocumentList", "Document"))
+                                            .DataTextField("name")
+                                            .DataValueField("id")
+                                            .OptionLabel("Select Document..")
+                                            .OnChange("onDocumentChange")
+                                            .Filter("Contains")
+                                            .HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                            .Render())
+                            </div>
+                            <div class="col-md-3" id="idAttachment" style="display:none;width:100%">
+                                @Html.LabelFor(w => w.PictureId)<br />
+                                @(Html.KendoDropDownListFor(w => w.PictureId)
+                                                                                                                                                        //.Read(Url.Action("GetAllDocumentList", "Document"))
+                                                                                                                                                        //.DataTextField("name")
+                                                                                                                                                        //.DataValueField("id")
+                                                                                                                                                        //.OptionLabel("Select Document..")
+                                                                                                                                                        //.OnChange("onDocumentChange")
+                                                                                                                                                        //.HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                                                                                                                                        .Render())
+                            </div>
+                            <div class="col-md-2">
+                                @Html.LabelFor(w => w.StartDate)
+                                @(Html.KendoDatePickerFor(w => w.StartDate)
+                                                                                                    .HtmlAttributes(new { @class = "form-control", style = "width:100%" })
+                                                                                                    .Format("dd-MMM-yyyy")
+                                                                                                    .Render())
+                            </div>
+                            <div class="col-md-2">
+                                @Html.LabelFor(w => w.EndDate)
+                                @(Html.KendoDatePickerFor(w => w.EndDate)
+                                                                                                            .HtmlAttributes(new { @class = "form-control", style = "width:100%" })
+                                                                                                            .Format("dd-MMM-yyyy")
+                                                                                                            .Render())
+                            </div>
+                            <div class="col-md-2" style="padding-top:22px">
+                                <button id="AddAttach" type="button" title="Add Attachment" style="padding: 11px;"
+                                        class="btn btn-primary">
+                                    <i class="fa fa-plus-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <b id="idErrorMessage" style="color:red;font-weight: 200;margin-left: -14px;"></b>
+                            </div>
+                        </div>
+                        <div class="row form-group @(Model.CustomerDocumentDetail != null ? "" : "hidden")">
+                            <table id="DocumentDetail" class="table table-bordered table-striped table-nomargin-nopadding">
+                                <thead>
+                                    <tr>
+                                        <th>Document</th>
+                                        <th>Attachment</th>
+                                        <th>Start date</th>
+                                        <th>End date</th>
+                                        <th>Link</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.CustomerDocumentDetail != null)
+                                    {
+                                        @foreach (var val in Model.CustomerDocumentDetail)
+                                        {
+                                            <tr data-documentid='@val.DocumentId' data-documentname='@val.DocumentName' data-attid="@val.PictureId" data-attname='@val.AttachmentName' data-startdate="@val.StartDate" data-enddate="@val.EndDate" data-createdlink="@val.CreatedLink">
+                                                <td style="vertical-align: middle;">@val.DocumentName</td>
+                                                <td style="vertical-align: middle;">@val.AttachmentName</td>
+                                                <td style="vertical-align: middle;">@val.StartDate.Value.ToString("dd-MMM-yyyy")</td>
+                                                <td style="vertical-align: middle;">@val.EndDate.Value.ToString("dd-MMM-yyyy")</td>
+                                                <td style="text-align: center;vertical-align: middle;"><a style="cursor:pointer !important;padding: 9px;" href="@(val.CreatedLink)" onclick="return CopySelectedText(this)" class='btn btn-primary '>Copy Link</a></td>
+                                                <td style="text-align: center;vertical-align: middle;"><a onClick='RemoveRowAndHideHeaderGenuine(this);' class='text-danger'><span class='fa fa-remove'></span></a></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <div class="form-row">
+                        <div class="col-12">
+                            <input type="submit" value="Save" class="btn btn-primary" onclick="return checkValidation()" />
+                            @if (Model.Id != null && Model.Id != 0)
+                            {
+                                <input type="submit" value="Save & Send" id="btnCustomerEmail" class="btn btn-primary" onclick="return checkValidation()" />
+                            }
+                            <span id="spinner" style="display:none;"><i class="fa fa-spinner"></i></span>
+                        </div>
+                    </div>
+
+                </form>
+                <div>
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+@*@section Scripts{*@
+<script>
+    var onSuccess = function (data) {
+        debugger;
+         Swal.fire({
+                    title: 'Success!',
+             text: 'Save/Send Successfully.',
+             icon: 'success',
+             showCancelButton: false,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Ok',
+                    allowEscapeKey: true
+                }).then((result) => {
+                    if (result.value) {
+                        window.location.href = "../../customer";
+                    }
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        window.location.href = "../../customer";
+                    }
+                })
+
+    };
+    var onFailed = function (data) {
+        debugger;
+        $.validator.unobtrusive.parse($(data));
+    }
+    var onComplete = function () {
+        debugger;
+        $("#spinner").hide();
+    }
+
+    function CopySelectedText(e) {
+        //debugger;
+
+        var copyText = $(e).attr('href');
+
+        document.addEventListener('copy', function (e) {
+            e.clipboardData.setData('text/plain', copyText);
+            e.preventDefault();
+        }, true);
+
+        document.execCommand('copy');
+        console.log('copied text : ', copyText);
+        toastr.success('Copied Text!!');
+        return false;
+    }
+
+    $('.copy_text').click(function (e) {
+        e.preventDefault();
+        var copyText = $(this).attr('href');
+
+        document.addEventListener('copy', function (e) {
+            e.clipboardData.setData('text/plain', copyText);
+            e.preventDefault();
+        }, true);
+
+        document.execCommand('copy');
+        console.log('copied text : ', copyText);
+        toastr.success('Copied Text!!');
+    });
+
+    function RemoveRowAndHideHeaderGenuine(id) {
+        var $table = $(id).parents("table");
+        var pictureid = $(id).closest("tr").data("attid");
+        var documentid = $(id).closest("tr").data("documentid");
+        var customerid = $('#Id').val();
+
+        $(id).closest("tr").remove();
+        Delete(pictureid, documentid, customerid);
+        if ($table.find("tbody").find("tr").length == 0) {
+            $table.parent().addClass("hidden");
+        }
+    }
+
+    $("#AddAttach").click(function () {
+        $("#idErrorMessage").val("");
+        var Name = $("#DocumentId");
+        var Attachment = $("#PictureId");
+        var startDate = $('#StartDate').val();
+        var endDate = $('#EndDate').val();
+
+        if (Name.val() == "") {
+            $("#idErrorMessage").text('Document is Required.');
+        }
+        else {
+            //Name.siblings('span').html('');
+        }
+        if (Attachment.val() == "") {
+            $("#idErrorMessage").text('Attachment is Required.');
+        }
+        else {
+            //Attachment.siblings('span').html('');
+        }
+
+        if ($('#StartDate').val() == "") {
+            $("#idErrorMessage").text('Start date is required.');
+        }
+        else {
+            //$('#StartDate').siblings('span').html('');
+        }
+
+        if ($('#EndDate').val() == "") {
+            $("#idErrorMessage").text('End date is required.');
+        }
+        else {
+            //$('#EndDate').siblings('span').html('');
+        }
+
+        if (Name.val() == "" || Attachment.val() == "" || $('#StartDate').val() == "" || $('#EndDate').val() == "") {
+            return false;
+        }
+
+        $("#spinner").show();
+
+
+        $("#DocumentDetail").parent().removeClass("hidden");
+
+        $("#AddAttach").attr('disabled', 'disabled');
+
+        debugger;
+        var obj = {
+            CustomerId: $('#Id').val(),
+            DocumentId: Name.val(),
+            PictureId: Attachment.val(),
+            Path: "",
+            StartDate: startDate,
+            EndDate: endDate,
+        };
+        var createdLink = '';
+         $.post("@Url.Action("CreateEditCustomerDocument", "Customer")", obj,
+            function (data) {
+                debugger;
+                if (data != null && data != undefined && data != '') {
+                    try {
+                        createdLink = data;
+
+
+                        $("#DocumentDetail > tbody").append("<tr data-documentid='" +
+                            Name.val() + "' data-documentname='" + $("#DocumentId").data("kendoDropDownList").dataItem().name + "' data-attid='" + Attachment.val() + "' data-attname='" + $("#PictureId").data("kendoDropDownList").dataItem().name + "' data-startdate='" + startDate + "' data-enddate='" + endDate + "' data-createdlink='" + createdLink + "'><td style='vertical-align: middle;'>" +
+                            $("#DocumentId").data("kendoDropDownList").dataItem().name + "</td><td style='vertical-align: middle;'>" + $("#PictureId").data("kendoDropDownList").dataItem().name + "</td>" +
+                            "<td style='vertical-align: middle;'>" + startDate + "</td>" +
+                            "<td style='vertical-align: middle;'>" + endDate + "</td>" +
+                            "<td style='text-align: center;vertical-align: middle;'><a style='cursor:pointer !important;padding: 9px;' onclick='return CopySelectedText(this)' href='" + createdLink + "' class='btn btn-primary ' >Copy Link</td>" +
+                            "<td style='text-align: center;vertical-align: middle;'><a onClick='RemoveRowAndHideHeaderGenuine(this);' class='text-danger' ><span class='fa fa-remove'></span></a></td></tr>");
+
+        //$("#DocumentId").val('');
+
+                        $("#PictureId").val('Select Attachment..');
+                } catch { }
+
+            }
+            else {
+                alert("Something Went Wrong!");
+                }
+
+                $("#AddAttach").removeAttr("disabled");
+                $("#spinner").hide();
+        });
+
+
+        $("#DocumentId").focus();
+
+
+    });
+
+
+    function Delete(pictureid, documentid, customerid) {
+        $.post("@Url.Action("DeleteCustomerDocument", "Customer")", { pictureid: pictureid, documentid: documentid, customerid: customerid },
+            function (data) {
+                //debugger;
+
+                    toastr.success("Deleted!!");
+        })
+    };
+
+    function checkValidation() {
+        var $PageValid = true;
+        BuildNativeTables();
+        $("#IsSendEmail").val(false);
+        return $PageValid;
+    }
+
+    function BuildNativeTables() {
+
+        var listName = "CustomerDocumentDetail";
+        qtd = 0;
+        $("#DocumentDetail > tbody > tr").each(function () {
+            var docId = $(this).data("documentid");
+            var attId = $(this).data("attid");
+            var startDate = $(this).data("startdate");
+            var endDate = $(this).data("enddate");
+            var createdLink = $(this).data("createdlink");
+
+            $("#CreateEditCustomerForm").prepend("<input type='hidden' name='" + listName + "[" + qtd + "].DocumentId' value='" + docId + "'>");
+            $("#CreateEditCustomerForm").prepend("<input type='hidden' name='" + listName + "[" + qtd + "].PictureId' value='" + attId + "'>");
+            $("#CreateEditCustomerForm").prepend("<input type='hidden' name='" + listName + "[" + qtd + "].StartDate' value='" + startDate + "'>");
+            $("#CreateEditCustomerForm").prepend("<input type='hidden' name='" + listName + "[" + qtd + "].EndDate' value='" + endDate + "'>");
+            $("#CreateEditCustomerForm").prepend("<input type='hidden' name='" + listName + "[" + qtd + "].CreatedLink' value='" + createdLink + "'>");
+
+            qtd += 1;
+        });
+    }
+
+
+    $("#Email").on('beforeItemAdd', function (event) {
+        //debugger
+        // check item contents
+        if (!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(event.item)) {
+            // set to true to prevent the item getting added
+            event.cancel = true;
+        }
+    });
+
+    var isEmail = false;
+    $("#btnCustomerEmail").click(function () {
+        toastr.success("Please Wait....");
+        isEmail = true;
+        var $PageValid = true;
+        BuildNativeTables();
+        $("#IsSendEmail").val(true);
+    })
+
+    //debugger;
+    var today = new Date();
+    var setdt = new Date(today.setDate(today.getDate() + 90))
+    $("#EndDate").kendoDatePicker({
+        max: setdt,
+        format: "dd-MMM-yyyy"
+    });
+
+</script>
+@*}*@
+

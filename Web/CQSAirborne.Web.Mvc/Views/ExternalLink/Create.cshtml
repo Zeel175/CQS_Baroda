@@ -1,0 +1,23 @@
+﻿@model CQSAirborne.Model.ExternalLink.AddEditExternalLinkModel
+@{
+    ViewData["Title"] = "Create";
+    ViewData["CurrentPage"] = "ExternalLink";
+}
+<div class="row">
+<div class="col-md-12">
+    <div class="card">
+        <div class="card-header card-header-primary card-header-container">
+            <h4 class="card-title ">Manage External Link</h4>
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm("Create", "ExternalLink", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @(await Html.PartialAsync("_CreateEditPartial"))
+            }
+            <div>
+                <a asp-action="Index">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

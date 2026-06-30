@@ -1,0 +1,206 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.Dropdown
+@using CQSAirborne.Model.Core;
+@using CQSAirborne.Web.Infrastructure.Helpers.Editor
+@model CQSAirborne.Model.Employee.AddEditEmployeeViewModel
+@using static CQSAirborne.Web.Mvc.Utils.HtmlHelper
+@if (TempData["UploadSummary"] != null)
+{
+    <div style="color:green; font-weight:bold; padding:10px;">
+        @Html.Raw(TempData["UploadSummary"])
+    </div>
+}
+
+@using (Html.BeginForm(Model.Id == 0 ? "Create" : "Edit", "Employee", null, FormMethod.Post, true, new { }))
+{
+    @Html.HiddenFor(m => m.Id)
+    <div class="form-row">
+        <div class="col-6">
+            @Html.RequiredLabelFor(w => w.EmpId)
+            @if (Model.Id > 0)
+            {
+                @Html.TextBoxFor(w => w.EmpId, new { @class = "form-control", @readonly = true })
+            }
+            else
+            {
+                @Html.TextBoxFor(w => w.EmpId, new { @class = "form-control" })
+            }
+            @Html.ValidationMessageFor(w => w.EmpId)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.EmployeeName)
+            @Html.TextBoxFor(w => w.EmployeeName, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.EmployeeName)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.GroupId)
+            @Html.TextBoxFor(w => w.GroupId, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.GroupId)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.Department)
+            @Html.TextBoxFor(w => w.Department, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.Department)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.Designation)
+            @Html.TextBoxFor(w => w.Designation, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.Designation)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.ReportingManagerGID)
+            @Html.TextBoxFor(w => w.ReportingManagerGID, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.Designation)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.ReportingManagerEmpID)
+            @Html.TextBoxFor(w => w.ReportingManagerEmpID, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.ReportingManagerEmpID)
+        </div>
+        <div class="col-6" style="display:none">
+            @Html.LabelFor(w => w.Plant)
+            @Html.TextBoxFor(w => w.Plant, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.Plant)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.PlantId)
+            @(Html.KendoDropDownListFor(w => w.PlantId)
+                                        .Read(Url.Action("GetPlantList", "Plant"))
+                                        .DataTextField("name")
+                                        .DataValueField("id")
+                                        .OptionLabel("Select Plant...")
+                                        //.OnChange("onDocumentChange")
+                                        //.Filter("Contains")
+                                        .HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                        .Render())
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.ReportingManagerName)
+            @Html.TextBoxFor(w => w.ReportingManagerName, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.ReportingManagerName)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.ReportingManagerEmailID)
+            @Html.TextBoxFor(w => w.ReportingManagerEmailID, new { @class = "form-control ignoreKeyPress" })
+            @Html.ValidationMessageFor(w => w.ReportingManagerEmailID)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.HODGID)
+            @Html.TextBoxFor(w => w.HODGID, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.HODGID)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.HODEmpID)
+            @Html.TextBoxFor(w => w.HODEmpID, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.HODEmpID)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.HODName)
+            @Html.TextBoxFor(w => w.HODName, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.HODName)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.HODEmailID)
+            @Html.TextBoxFor(w => w.HODEmailID, new { @class = "form-control ignoreKeyPress" })
+            @Html.ValidationMessageFor(w => w.HODEmailID)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.OfficalEmpEmailID)
+            @Html.TextBoxFor(w => w.OfficalEmpEmailID, new { @class = "form-control ignoreKeyPress" })
+            @Html.ValidationMessageFor(w => w.OfficalEmpEmailID)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.ADID)
+            @Html.TextBoxFor(w => w.ADID, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.ADID)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.OrgRole, "Role")
+            @*@Html.DropDownListFor(model => model.OrgRole, new SelectList(Enum.GetValues(typeof(CQSAirborne.Web.Mvc.Utils.OrgRole))), "-- Select Role --", new { @class = "form-control" })*@
+            @if (ViewBag.Roles != null)
+            {
+                @Html.DropDownListFor(w => w.OrgRole, new SelectList(ViewBag.Roles as List<StructureRoleSelectListModel>, "RoleName", "RoleName"), "-- Select --", new { @class = "form-control" })
+            }
+            else
+            {
+                @Html.DropDownListFor(w => w.OrgRole, null, "-- Select --", new { @class = "form-control" })
+            }
+            @Html.ValidationMessageFor(w => w.OrgRole)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.PlantIds, "Plant(s) Access")
+            <select class="form-control multiselect FilterControl" asp-for="@Model.PlantIdList" type="number" multiple="multiple">
+                <option id="select2All" value="0">Select All</option>
+                @if (Model != null && Model.PlantIds != null && Model.PlantIds.Split(",").Count() > 0)
+                {
+                    @if (ViewBag.PlantList != null)
+                    {
+                        foreach (var item in ViewBag.PlantList)
+                        {
+                            var data = Model.PlantIds.Split(",").Any(a => a.ToString() == @item.Id.ToString());
+                            if (data)
+                            {
+                                <option id="@item.Id" selected value="@item.Id">@item.Name</option>
+                            }
+                            else
+                            {
+                                <option id="@item.Id" value="@item.Id">@item.Name</option>
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    @if (ViewBag.PlantList != null)
+                    {
+                        foreach (var item in ViewBag.PlantList)
+                        {
+                            <option id="@item.Id" value="@item.Id">@item.Name</option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+
+    </div>
+    <div class="form-row">
+        <div class="col-6">
+            @Html.LabelFor(w => w.UserName)
+            @Html.TextBoxFor(w => w.UserName, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.UserName)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.Password)
+            @Html.TextBoxFor(w => w.Password, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.Password)
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </div>
+}
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+    <script>
+        $(document).ready(function () {
+            $('.multiselect').fSelect({ placeholder: 'Select Plant...' });
+        });
+
+    </script>

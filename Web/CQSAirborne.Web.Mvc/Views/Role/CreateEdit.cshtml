@@ -1,0 +1,111 @@
+﻿@model CQSAirborne.Model.Role.AddEditRoleModel
+@{
+    ViewData["Title"] = "Role";
+    ViewData["CurrentPage"] = "Role";
+    ViewData["PageHeader"] = "Role";
+}
+
+
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))
+
+<script>
+    function onRoleTypeChange() {
+        // TODO: Pending logic to clear Location for Global roles
+    }
+
+    function setPreSaveData() {
+        //debugger;
+        var permissions = JSON.stringify(getPermissions());
+        $("#PermissionData").val(permissions);
+
+    }
+</script>
+<style>
+    .input-validation-error {
+        border: none !important;
+        border-bottom: 1px solid #dc3545 !important
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Manage Role</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="Role" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailed" data-ajax-loading="#spinner" data-ajax-complete="onComplete">
+                    <div class="validation-summary-errors" id="ModelStateError"></div>
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="PermissionData" />
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="form-label">Role Name<span style="color:red">*</span></div>
+                                <input type="text" class="form-control" asp-for="RoleName" value="@Model.RoleName" />
+                                <span asp-validation-for="RoleName" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @(await Component.InvokeAsync<CQSAirborne.Web.Mvc.Components.AccessPermissionViewComponent>(new { permissionScreenType = (int)CQSAirborne.Model.Core.PermissionScreenType.Role, @id = (Model.RoleName != null ? Model.RoleName : "New") }))
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" onclick="setPreSaveData()">Save</button>
+                                <button type="button" class="btn btn-primary btnCancel">Cancel</button>
+                                <span id="spinner" style="display:none;"><i class="fa fa-spinner"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div>
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //debugger;
+        var modelData = @Json.Serialize(Model);
+        if (modelData.id != null && modelData.id != undefined && modelData.id != 0) {
+            $('#RoleName').attr("disabled", "disabled");
+        }
+        else {
+            $('#RoleName').removeAttr("disabled");
+        }
+    });
+</script>
+<script>
+    $(".btnCancel").click(function () {
+
+        location.href = "../../Role/Index";
+    });
+
+    var onSuccess = function (data) {
+        //$("#global-loader").hide();
+        try {
+            toastr.success("Please Wait");
+        } catch{ }
+
+        //debugger;
+    }
+
+    var onFailed = function (data) {
+        toastr.error("Something wrong!");
+    }
+    var onComplete = function () {
+        $('input[type=submit]', this).removeAttr('disabled');
+        location.href = "../../Role/Index";
+    }
+
+</script>
+

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--<TargetFramework>netcoreapp2.1</TargetFramework>-->
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <!--<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.1.1" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\CQSAirborne.Services.Contract\CQSAirborne.Services.Contract.csproj" />
+    <ProjectReference Include="..\..\Services\CQSAirborne.Services.Implementation\CQSAirborne.Services.Implementation.csproj" />
+    <ProjectReference Include="..\CQSAirborne.Data.Contract\CQSAirborne.Data.Contract.csproj" />
+    <ProjectReference Include="..\CQSAirborne.Data.Implementation\CQSAirborne.Data.Implementation.csproj" />
+    <ProjectReference Include="..\CQSAirborne.Repository.Implementation\CQSAirborne.Repository.Implementation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.dependencyinjection.abstractions\2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

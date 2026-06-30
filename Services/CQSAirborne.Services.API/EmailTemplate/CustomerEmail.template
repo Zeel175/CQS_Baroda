@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+	<style>
+	th{
+		border:1px solid black;
+		border-collapse:collapse;
+	}
+	table{
+	border-collapse:collapse;
+	}
+	</style>
+</head>
+<body>
+    <div style="padding:30px">
+        Dear Requestor,<br /><br />
+        Please find below the requested document details, links for view access and their validity. To access the documents use the password : ###Password<br /><br />
+        <table style="border:1px solid;width:100%;border-collapse:collapse;" cellpadding="5">
+            <tr>
+                <th style="border:1px solid black;">Sl. No.</th>
+                <th style="border:1px solid black;">Document Number</th>
+                <th style="border:1px solid black;">Document Title</th>
+                <th style="border:1px solid black;">Valid From</th>
+                <th style="border:1px solid black;">Valid To</th>
+                <th style="border:1px solid black;">Document Access Link</th>
+            </tr>
+           
+            ###TableBody
+        </table>
+        <br />
+        <br />
+		<i>PROPRIETARY NOTICE:  This document(s) is a proprietary data of Tata Advanced Systems Ltd. The information contained herein shall not be reproduced, used or disclosed in any form without the authorization of Tata Advanced Systems Ltd.</i>
+        <br />
+        <br />
+        Regards,<br />
+        Corporate Quality System<br />
+        TATA Advanced Systems Limited
+    </div>
+</body>
+</html>

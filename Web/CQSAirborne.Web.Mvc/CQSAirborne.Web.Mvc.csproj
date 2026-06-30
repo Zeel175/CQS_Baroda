@@ -1,0 +1,233 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<Nullable>disable</Nullable>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="wwwroot\TestDocuments\**" />
+		<Content Remove="wwwroot\TestDocuments\**" />
+		<EmbeddedResource Remove="wwwroot\TestDocuments\**" />
+		<None Remove="wwwroot\TestDocuments\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="Certificates\certificate.crt" />
+		<None Remove="Certificates\certificate.pfx" />
+		<None Remove="Certificates\Cosmos_test2-idp-metadata.xml" />
+		<None Remove="Certificates\idp.crt" />
+		<None Remove="Certificates\Private.pem" />
+		<None Remove="Certificates\privateKey.key" />
+		<None Remove="Certificates\request.csr" />
+		<None Remove="Certificates\SPNew.crt" />
+		<None Remove="Certificates\SPNewP.pfx" />
+		<None Remove="cosmos6-idp-metadata.xml" />
+		<None Remove="Cosmos7-idp-metadata.xml" />
+		<None Remove="Cosmos7-idp-metadata_2.xml" />
+		<None Remove="Cosmos7-idp-metadata_4.xml" />
+		<None Remove="Cosmos7-idp-metadata_5.xml" />
+		<None Remove="wwwroot\DataTableExportCssJs\buttons.dataTables.min.css" />
+		<None Remove="wwwroot\DataTableExportCssJs\buttons.html5.min.js" />
+		<None Remove="wwwroot\DataTableExportCssJs\dataTables.buttons.min.js" />
+		<None Remove="wwwroot\DataTableExportCssJs\jszip.min.js" />
+		<None Remove="wwwroot\PendingEmailRelated\bootstrap.min.css" />
+		<None Remove="wwwroot\PendingEmailRelated\bootstrap.min.js" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Certificates\certificate.crt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\certificate.pfx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\Cosmos_test2-idp-metadata.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\idp.crt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\Private.pem">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\privateKey.key">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\request.csr">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\SPNew.crt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Certificates\SPNewP.pfx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="cosmos6-idp-metadata.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Cosmos7-idp-metadata.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Cosmos7-idp-metadata_2.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Cosmos7-idp-metadata_4.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Cosmos7-idp-metadata_5.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\DataTableExportCssJs\buttons.dataTables.min.css">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\DataTableExportCssJs\buttons.html5.min.js">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\DataTableExportCssJs\dataTables.buttons.min.js">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\DataTableExportCssJs\jszip.min.js">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\PendingEmailRelated\bootstrap.min.css">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\PendingEmailRelated\bootstrap.min.js">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Core\CQSAirborne.Model\CQSAirborne.Model.csproj" />
+		<ProjectReference Include="..\..\Core\ITfoxtec.Identity.Saml2.MvcCore\ITfoxtec.Identity.Saml2.MvcCore.csproj" />
+		<ProjectReference Include="..\..\Core\ITfoxtec.Identity.Saml2\ITfoxtec.Identity.Saml2.csproj" />
+		<ProjectReference Include="..\..\Core\Saml2.Authentication.Core\Saml2.Authentication.Core.csproj" />
+		<ProjectReference Include="..\CQSAirborne.Web.Infrastructure\CQSAirborne.Web.Infrastructure.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="System.Windows.Forms">
+			<HintPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\System.Windows.Forms.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="Views\Category\Edit.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Category\Index.cshtml">
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Employee\Edit.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Employee\Create.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Employee\_CreateEditPartial.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\ExternalLink\Create.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\ExternalLink\Edit.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\ExternalLink\Index.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\ExternalLink\_CreateEditPartial.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Document\Edit.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Plant\Edit.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Shared\_MaterialThemeLoginLayout.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="Views\Shared\_MaterialThemeLayout.cshtml">
+			<Pack>$(IncludeRazorContentInPack)</Pack>
+		</Content>
+		<Content Update="wwwroot\assets\img\client\CQS_New_Logo.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\assets\img\client\OneStop_New.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\assets\img\client\TTAdvance_New.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\js\jquery-migrate-3.3.2.js">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\lib\multifreeze\multifreeze.css">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\pdf-icons\excel.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\pdf-icons\file.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\pdf-icons\pdf.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\pdf-icons\word.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\TempDocuments\Employee_Sample_Upload.xlsx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="uploads\" />
+		<Folder Include="wwwroot\lib\lodash\" />
+		<Folder Include="wwwroot\images\" />
+		<Folder Include="wwwroot\ExPorted\" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Views\Role\CreateEdit.cshtml" />
+		<None Include="Views\Role\Index.cshtml" />
+		<None Include="Views\Shared\Components\AccessPermission\_AccessPermission.cshtml" />
+		<None Include="wwwroot\Multiselect\js\fSelect.js" />
+		<None Include="wwwroot\PDFNative\32bit\libwkhtmltox.dll" />
+		<None Include="wwwroot\PDFNative\32bit\libwkhtmltox.dylib" />
+		<None Include="wwwroot\PDFNative\64bit\libwkhtmltox.dll" />
+		<None Include="wwwroot\PDFNative\64bit\libwkhtmltox.dylib" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Captcha" Version="4.4.2" />
+		<PackageReference Include="DinkToPdf" Version="1.0.8" />
+		<PackageReference Include="EPPlus.Core" Version="1.5.4" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+		<PackageReference Include="jquery.datatables" Version="1.10.15" />
+		<!--<PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />-->
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
+		<!--<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" />-->
+		<!--<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.8" />-->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.EventSource" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.TraceSource" Version="8.0.2" />
+		<PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="6.11.0" />
+		<!--<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />-->
+		<PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="6.0.2" />
+		<PackageReference Include="octicons" Version="3.5.0" />
+		<PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Views\**\*.cshtml">
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
+
+</Project>

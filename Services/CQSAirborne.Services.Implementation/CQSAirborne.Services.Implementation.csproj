@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- AutoMapper aligned with other projects -->
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Serilog" Version="2.10.0" />
+
+		<!-- Update DirectoryServices for .NET 8 -->
+		<PackageReference Include="System.DirectoryServices" Version="8.0.0" />
+		<PackageReference Include="System.DirectoryServices.AccountManagement" Version="8.0.0" />
+		<PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Core\CQSAirborne.Data.Contract\CQSAirborne.Data.Contract.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Model\CQSAirborne.Model.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Repository.Contract\CQSAirborne.Repository.Contract.csproj" />
+		<ProjectReference Include="..\..\Web\CQSAirborne.Web.Infrastructure\CQSAirborne.Web.Infrastructure.csproj" />
+		<ProjectReference Include="..\CQSAirborne.Services.Contract\CQSAirborne.Services.Contract.csproj" />
+	</ItemGroup>
+
+</Project>

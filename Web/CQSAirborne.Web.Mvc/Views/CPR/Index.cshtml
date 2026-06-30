@@ -1,0 +1,326 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    ViewData["CurrentPage"] = "CPR Master";
+    ViewData["PageHeader"] = "CPR Master";
+}
+<style>
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 12px;
+        text-transform: capitalize;
+        white-space: nowrap;
+    }
+
+    .bg-green {
+        background-color: #16a34a; /* Tailwind green-600 */
+        color: #fff;
+        border-radius: 4px;
+    }
+
+    .bg-red {
+        background-color: #dc2626; /* Tailwind red-600 */
+        color: #fff;
+        border-radius: 4px;
+    }
+
+    .bg-yellow {
+        background-color: #facc15; /* Tailwind yellow-400 */
+        color: #000;
+        border-radius: 4px;
+    }
+
+    .bg-blue {
+        background-color: #2563ebb3; /* Tailwind blue-600 */
+        color: #fff;
+        border-radius: 4px;
+    }
+
+    .bg-gray {
+        background-color: #9ca3af; /* Tailwind gray-400 */
+        color: #fff;
+        border-radius: 4px;
+    }
+
+    .bg-dark {
+        background-color: #343a40 !important;
+        border-radius: 4px;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Company Procedure Review List</h4>
+
+                <div class="card-header-actions">
+                    <button id="btnExport" type="button" data-for="2" value="Export Excel" class="btn btn-success btnExport">
+                        <i class="fa fa-file-excel-o" aria-hidden="true" style="margin-right:5px;"></i>Export Excel
+                    </button>
+                    <a href='@Url.Action("CreateEdit","CPR")' class="btn btn-warning">
+                        <i class="fa fa-plus"></i>
+                        Add New
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="cprTable" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                        <thead class="text-primary">
+                            <tr>
+                                <th class="hidden noExport">Id</th>
+                                <th>Unique Code</th>
+                                @*<th>CPR No</th>*@
+                                <th>Category</th>
+                                <th>Document No</th>
+                                <th>Requested By</th>
+                                <th>Requested Date</th>
+                                <th>Action Requested</th>
+                                <th>Raised Due To</th>
+                                <th>Department</th>
+                                <th>Revision</th>
+                                <th>Plant</th>
+                                <th>Status</th>
+                                <th>QMS Release Status</th>
+                                <th>Actions</th>
+                                <th class="hidden">Is Closed</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/SweetAlert/SweetAlert.js"></script>
+
+<script>
+    function DeleteCPR(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                // matches MVC action that calls web service (soft delete)
+                $.getJSON("@Url.Action("DeleteCPRMaster", "CPR")?id=" + id, function () {
+                    Swal.fire('Deleted!', 'Record has been deleted.', 'success');
+                    BindGrid();
+                });
+            }
+        })
+    }
+</script>
+
+<script>
+    var dataUrl = '@Url.Action("GetDataBySP", "CPR")'; // MVC action -> calls REST service GetAllAsync
+    var grid;
+
+    function BindGrid() {
+        grid = $('#cprTable').DataTable();
+        grid.destroy();
+
+        grid = $('#cprTable').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": false,
+            "pageLength": 100,
+            "scrollX": true,
+            "scrollY": '450px',
+            "order": [[0, "desc"]],  // 0 is the index of 'id' column
+            "columns": [
+                { "data": "id", "className": "hidden noExport" },  // Hidden column
+                { "data": "cprUniqueCode" },
+                { "data": "categoryName" },
+                { "data": "documentNo" },
+                { "data": "requestedBy" },
+                /*{ "data": "cprNo" },*/
+                {
+                    "data": "requestedDate",
+                    "render": function (data) {
+                        if (!data) return "";
+                        // expects ISO string; format as dd-MMM-yyyy
+                        var d = new Date(data);
+                        if (isNaN(d)) return data; // fallback
+                        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    }
+                },
+                { "data": "actionRequested" },
+                { "data": "cprRaisedDueTo" },
+                { "data": "department" },
+                { "data": "revision" },
+                { "data": "plant" },
+                {
+                    "data": "statusName",
+                    "render": function (data) {
+                        if (!data) return "";
+
+                        let badgeClass = "";
+
+                        switch (data.toLowerCase()) {
+                            case "approved":
+                                badgeClass = "bg-green text-white";
+                                break;
+                            case "rejected":
+                                badgeClass = "bg-red text-white";
+                                break;
+                            case "awaiting approval":
+                                badgeClass = "bg-yellow text-black";
+                                break;
+                            case "open":
+                                badgeClass = "bg-blue text-white";
+                                break;
+                            case "closed":
+                                badgeClass = "bg-dark text-white";
+                                break;
+                            default:
+                                badgeClass = "bg-gray text-white";
+                                break;
+                        }
+
+                        return `<span class="px-2 py-1 rounded-full text-xs font-semibold ${badgeClass}">${data}</span>`;
+                    }
+                    },
+                     {
+                    "data": "qmsStatus",
+                    "render": function (data) {
+                        if (!data) return "";
+
+                        let badgeClass = "";
+
+                        switch (data.toLowerCase()) {
+                            case "approved":
+                                badgeClass = "bg-green text-white";
+                                break;
+                                 case "released":
+                                badgeClass = "bg-green text-white";
+                                break;
+                            case "rejected":
+                                badgeClass = "bg-red text-white";
+                                break;
+                            case "awaiting approval":
+                                badgeClass = "bg-yellow text-black";
+                                break;
+                            case "open":
+                                badgeClass = "bg-blue text-white";
+                                break;
+                            case "closed":
+                                badgeClass = "bg-dark text-white";
+                                break;
+                            default:
+                                badgeClass = "bg-gray text-white";
+                                break;
+                        }
+
+                        return `<span class="px-2 py-1 rounded-full text-xs font-semibold ${badgeClass}">${data}</span>`;
+                    }
+                },
+                {
+                    "data": null,
+                    "mRender": function (data, type, row) {
+                        var edit = "<a href='/CPR/CreateEdit/" + row.id + "' title='Edit'><i class='fa fa-pencil'></i></a>";
+                        var del  = "<a onclick='DeleteCPR(" + row.id + ")' style='display:@(ViewBag.IsDelete);' title='Delete'> <i class='fa fa-trash' style='color:#00bcd4 !important;cursor:pointer !important'></i></a>";
+                        return edit + " " + del + " <a href='/CPR/ExportPdf/" + row.id + "' target='_blank' class='' title='Export PDF'><i class='fa fa-file-pdf-o'></i></a>";
+                    },
+                    "searchable": false,
+                    "orderable": false
+                },
+                {
+                    "data": "isClosed",
+                    "render": function (data) {
+                        //debugger;
+                        if (!data) return "";
+
+                        var closedOrNot = "";
+                        switch (data) {
+                            case "true":
+                                closedOrNot = "Yes";
+                                break;
+                            case "false":
+                                closedOrNot = "No";
+                                break;
+                            default:
+                                closedOrNot = "No";
+                                break;
+                        }
+
+                        return closedOrNot;
+                    },
+                "searchable": false,
+                    "orderable": false,
+                    "className": "hidden"
+                }
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "error": function (xhr, error, code) {
+                    if (code == "Unauthorized") {
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                    }
+                }
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                //debugger;
+                if (aData.adminStatusId == "11") {
+                    $('td', nRow).css({ 'background': 'beige' });
+                    $('td', nRow).attr("title","Released.");
+                }
+                else if (aData.adminStatusId == "12") {
+                    $('td', nRow).css({ 'background': '#f4d3d3bf' });
+                    $('td', nRow).attr("title","Rejected by QMS Admin.");
+                }
+                if (aData.isClosed == true) {
+                    $('td', nRow).css({ 'background': '#cacaca66' });
+                    $('td', nRow).attr("title", "Closed.");
+                }
+            },
+        });
+    }
+
+    $(document).ready(function () {
+        BindGrid();
+    });
+</script>
+
+<script>
+    $(".btnExport").click(function () {
+        $("#processingModel").show();
+
+        var exportDataObj = {
+            CustomFilter: "2"
+        };
+
+        $.post("@Url.Action("CPRMasterExport", "CPR")", exportDataObj, function (result) {
+            $("#processingModel").hide();
+            if (result.fileStatus === true) {
+                window.open(result.filePath, "_blank");
+            }
+        });
+    });
+</script>

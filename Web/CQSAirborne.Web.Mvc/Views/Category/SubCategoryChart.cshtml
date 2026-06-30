@@ -1,0 +1,292 @@
+﻿@{
+    ViewData["Title"] = "TASL PCF Count";
+    ViewData["CurrentPage"] = "SubCategoryChart";
+}
+
+
+<title>Stacked Bar Chart</title>
+
+<style>
+    #chartdiv {
+        width: 100%;
+        height: 500px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .amcharts-amexport-item {
+        border: 2px solid cornflowerblue;
+    }
+
+    .amcharts-amexport-label {
+        display: block;
+        cursor: pointer;
+        padding: 0.5em 1em;
+        background-color: white;
+        color: cornflowerblue;
+        font-weight: bold;
+    }
+
+    .amcharts-amexport-top .amcharts-amexport-item > .amcharts-amexport-menu {
+        /*top: -3px !important;
+        left: 2px;*/
+        font-weight: bold;
+    }
+
+    .amcharts-amexport-item.amcharts-amexport-item-level-0 > a {
+        text-align: center;
+        padding: 0px;
+        overflow: hidden;
+    }
+
+    .amcharts-graph-column {
+        cursor: pointer !important;
+    }
+</style>
+
+<!-- Resources -->
+<script src="~/js/amChart/core.js"></script>
+<script src="~/js/amChart/charts.js"></script>
+<script src="~/js/amChart/animated.js"></script>
+<!-- Chart code -->
+<script type="text/javascript">
+    function BindChart() {
+        var plantId = "@ViewBag.PlantId";
+        GetPCFCount(plantId);
+    }
+</script>
+<script>
+    function GetPCFCount(plantId) {
+        $.ajax({
+            type: "GET",
+            url: "/Category/GetCategorywiseDocumentCountByParentCategory?categoryId=" +@Json.Serialize(ViewBag.categoryId)+"&plantId=" + plantId,
+            contentType: "text/plain; charset=utf-8",
+            dataType: "text",
+            success: function (response) {
+                //debugger;
+                BindPCFChart(response);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+        return;
+    }
+
+    function BindPCFChart(data) {
+
+        am4core.ready(function () {
+
+            //debugger;
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            // Create chart instance
+            var chart = am4core.create("chartdiv", am4charts.XYChart);
+            //chart.scrollbarX = new am4core.Scrollbar();
+            // Add data
+            chart.data = JSON.parse(data);
+
+            if (chart.data.length > 0) {
+                $("#chartdiv").removeClass("hidden");
+                $("#divEmptyData").addClass("hidden");
+            }
+            else {
+                $("#chartdiv").addClass("hidden");
+                $("#divEmptyData").removeClass("hidden");
+            }
+
+            // Create axes
+            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "categoryName";
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.minGridDistance = 30;
+
+            categoryAxis.tooltip.disabled = true;
+            categoryAxis.renderer.minHeight = 110;
+            categoryAxis.renderer.labels.template.fontSize = 12;
+            categoryAxis.renderer.labels.template.fontWeight = "bold";
+
+            categoryAxis.title.fontWeight = "bold";
+            var label = categoryAxis.renderer.labels.template;
+            //debugger;
+            var catName = @Json.Serialize(ViewBag.categoryName);
+            if (catName == 'Program Operating Instruction (POI)' || catName == 'POI Related Flowcharts' || catName == 'POI related Forms' || catName == 'POI Related Annexes') {
+                categoryAxis.title.text = "Program";
+                categoryAxis.renderer.labels.template.horizontalCenter = "middle";
+                categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            }
+            else if (catName == 'Quality Assurance Plan (QAP)' || catName == 'QAP Related Flowcharts' || catName == 'QAP Related Forms' || catName == 'QAP Related Annexes') {
+                categoryAxis.title.text = "Plant";
+                categoryAxis.renderer.labels.template.horizontalCenter = "middle";
+                categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            }
+            else if (catName == 'Flowcharts' || catName == 'Annexes' || catName == 'Forms') {
+                categoryAxis.title.text = "Category";
+                categoryAxis.renderer.labels.template.horizontalCenter = "middle";
+                categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            }
+            else {
+                //label.wrap = true;
+                //label.maxWidth = 130;
+                categoryAxis.title.text = "Series";
+                categoryAxis.renderer.labels.template.rotation = -30;
+                categoryAxis.renderer.labels.template.horizontalCenter = "right";
+                categoryAxis.renderer.labels.template.verticalCenter = "left";
+            }
+
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.renderer.minWidth = 50;
+
+
+            valueAxis.title.text = "Count";
+            valueAxis.title.fontWeight = "bold";
+
+            valueAxis.renderer.labels.template.disabled = true;
+
+            categoryAxis.renderer.grid.template.disabled = true;
+            valueAxis.renderer.grid.template.disabled = true;
+
+            //chart.scrollbarX = new am4core.Scrollbar();
+            //chart.scrollbarY = new am4core.Scrollbar();
+
+            // Create series
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.sequencedInterpolation = true;
+            series.dataFields.valueY = "documentCount";
+            series.dataFields.categoryX = "categoryName";
+            series.tooltipText = "{categoryFullName} : [{categoryFullName}: bold]{valueY}[/]";
+            series.columns.template.strokeWidth = 0;
+            series.name = "Document Count";
+            //series.columns.template.width = am4core.percent(40);
+            series.tooltip.pointerOrientation = "vertical";
+
+            series.columns.template.column.cornerRadiusTopLeft = 10;
+            series.columns.template.column.cornerRadiusTopRight = 10;
+            series.columns.template.column.fillOpacity = 0.8;
+
+            var bullet = series.bullets.push(new am4charts.LabelBullet());
+            bullet.label.text = "{valueY}";
+            bullet.label.verticalCenter = "bottom";
+            bullet.label.dy = -10;
+            bullet.label.fontSize = 13;
+            bullet.label.fontWeight = "bold";
+            chart.maskBullets = false;
+
+            // on hover, make corner radiuses bigger
+            var hoverState = series.columns.template.column.states.create("hover");
+            hoverState.properties.cornerRadiusTopLeft = 0;
+            hoverState.properties.cornerRadiusTopRight = 0;
+            hoverState.properties.fillOpacity = 1;
+
+            series.columns.template.adapter.add("fill", function (fill, target) {
+                return chart.colors.getIndex(target.dataItem.index + 3).lighten(-0.3);
+            });
+
+
+            var title = chart.titles.create();
+            title.text = @Json.Serialize(ViewBag.categoryName)  + " - Subcategory Details";
+            title.fontSize = 20;
+            title.marginBottom = 30;
+
+            //var label = chart.chartContainer.createChild(am4core.Label);
+            //label.text = "Categories";
+            //label.align = "center";
+
+            // Cursor
+            chart.cursor = new am4charts.XYCursor();
+
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.exporting.adapter.add("formatDataFields", function (data, target) {
+                debugger;
+                data.dataFields = {};
+                chart.series.each(function (series) {
+                    data.dataFields[series.dataFields.dateX] = series.dataFields.dateX;
+                    if (series.visible) {
+                        data.dataFields[series.dataFields.valueY] = series.dataFields.valueY;
+                    }
+                });
+                return data;
+            });
+            //chart.exporting.menu.align = "left";
+            chart.exporting.menu.verticalAlign = "top";
+            chart.exporting.menu.items = [{
+                "label": "...",
+                "menu": [
+
+                    { "type": "png", "label": "PNG" },
+                    { "type": "svg", "label": "SVG" },
+                    { "type": "pdf", "label": "PDF" },
+                    { "label": "Print", "type": "print" }
+                ]
+            }];
+
+            series.columns.template.events.on("hit", chartClick, this);
+            series.columns.template.cursorOverStyle = am4core.MouseCursorStyle.pointer;
+            categoryAxis.renderer.labels.template.events.on("hit", chartClick, this);
+            categoryAxis.renderer.labels.template.cursorOverStyle = am4core.MouseCursorStyle.pointer;
+        });
+    }
+
+    BindChart();
+
+    function chartClick(ev) {
+        debugger;
+        var data = ev.target.dataItem.dataContext;
+        var plId = $('#PlantId').val();
+        var urlClick = "./SubCategoryChart?categoryId=" + data.categoryId + "&categoryName=" + data.categoryFullName + "&plantId=" + plId;
+        window.open(urlClick, '_blank');
+    }
+
+    function removeIcon() {
+        var select = $("[transform^='translate(0,475.4)']");
+        $(select).hide();
+    }
+    setTimeout(removeIcon, 5000);
+</script>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">TASL PCF Count Chart</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4" style="padding: 22px; margin-bottom: -10px; margin-top: -15px;">
+
+                        <label for="lblPlantId">Plant</label>
+                        <select id="PlantId" name="PlantId" class="form-control" disabled="disabled">
+                            <option value="0">All</option>
+                            @if (ViewBag.PlantList != null)
+                            {
+                                foreach (var item in ViewBag.PlantList)
+                                {
+                                    if (ViewBag.PlantId == item.Id)
+                                    {
+                                        <option value="@item.Id" selected>@item.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div style="width: 97%">
+                    @*<canvas id="canvas"></canvas>*@
+                    <div id="chartdiv" style="position: relative;border: 1px solid #ccc;border-radius: 7px;"></div>
+                    <div id="divEmptyData" class="hidden">
+                        No Documents Available in <b>@ViewBag.categoryName</b>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

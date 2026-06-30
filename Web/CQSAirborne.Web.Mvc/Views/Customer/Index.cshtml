@@ -1,0 +1,154 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    ViewData["CurrentPage"] = "Customer";
+    ViewData["PageHeader"] = "Customer";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Customer List</h4>
+
+                <div class="card-header-actions">
+                    <button id="btnExport" type="button" data-for="2" value="Export Excel" class="btn btn-success btnExport"><i class="fa fa-file-excel-o" aria-hidden="true" style="margin-right:5px;"></i>Export Excel</button>
+                    <a href='@Url.Action("CreateEdit","Customer")' class="btn btn-warning">
+                        <i class="fa fa-plus"></i>
+                        Add New
+                    </a>
+
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                        <thead class="text-primary">
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Email</th>
+                                <th>Contact Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/SweetAlert/SweetAlert.js"></script>
+<script>
+    function DeleteCustomer(id) {
+        debugger;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.getJSON("../../Customer/DeleteCustomer?customerid=" + id + "", function () {
+                    debugger;
+                    Swal.fire(
+                        'Deleted!',
+                        'Record has been deleted.',
+                        'success'
+                    );
+
+                    BindGrid();
+                });
+            }
+        })
+    }
+
+</script>
+
+<script>
+    var dataUrl = '@Url.Action("GetData","Customer")';
+    var statusConfirmMsg = 'Are you sure you want to change the status of this employee?';
+
+    var grid;
+    function BindGrid() {
+
+        grid = $('#example').DataTable();
+        grid.destroy();
+
+        grid = $('#example').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": true,
+            "pageLength": 100,
+            "scrollX": true,
+            "scrollY": '450px',
+            "columns": [
+                { "data": "customerName" },
+                { "data": "email" },
+                { "data": "contactNumber" },
+                {
+                    "data": null,
+                    "mRender": function (data, type, row) {
+                        var template = "<a href='/customer/createedit/" + row.id + "'> <i class='fa fa-pencil'></i></a><a onclick='DeleteCustomer(" + row.id + ")'> <i  class='fa fa-trash' style='color:#00bcd4 !important;cursor:pointer !important'></i></a>";
+                        return template;
+                    },
+                    "searchable": false,
+                    "orderable": false
+                }
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "error": function (xhr, error, code) {
+                    //debugger;
+                    if (code == "Unauthorized") {
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                    }
+                }
+            }
+        });
+    }
+    $(document).ready(function () {
+        BindGrid();
+    });
+</script>
+<script>
+      $(".btnExport").click(function () {
+           debugger;
+           $("#processingModel").show();
+
+           var exportDataObj = {
+               CustomFilter: "2"
+           };
+
+            var linkFor = $(this).attr("data-for");
+
+           $.post("@Url.Action("CustomerExport", "Customer")", exportDataObj, function (result) {
+               debugger;
+                $("#processingModel").hide();
+                if (result.fileStatus == true) {
+                    window.open(result.filePath, "_blank");
+                }
+            });
+
+        });
+</script>

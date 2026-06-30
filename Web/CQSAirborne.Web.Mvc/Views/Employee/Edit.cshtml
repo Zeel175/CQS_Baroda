@@ -1,0 +1,8 @@
+﻿@model CQSAirborne.Model.Employee.AddEditEmployeeViewModel
+@{
+    ViewData["Title"] = "Employee";
+    ViewData["CurrentPage"] = "Employee";
+    ViewData["PageHeader"] = "Edit Employee";
+}
+
+@(await Html.PartialAsync("_CreateEditPartial", Model))

@@ -1,0 +1,157 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.Grid;
+@{
+    ViewData["Title"] = "Quick Search";
+    ViewData["PageHeader"] = "Quick Search";
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        <select class="form-control" id="dbColumn">
+            <option value="All">-All-</option>
+            <option value="CategoryName">Category Name</option>
+            <option value="DocumentName">Document Name</option>
+            <option value="DocumentUniqueCode">Document Unique Number</option>
+            <option value="RevisionNumber">Revision Number</option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <input type="text" onkeyup="triggerSearch(event)" class="form-control" id="searchText" placeholder="Enter Search Text.." />
+    </div>
+    <div class="col-md-2">
+        <button type="button" class="btn btn-primary btn-sm" onclick="search()">
+            <i class="fa fa-search"></i>
+            Search
+        </button>
+    </div>
+    <div class="col-md-12" style="margin-top: 10px;">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Quick Search</h4>
+                <p class="card-category"> Search for Document and Category Navigation</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped" cellspacing="0" width="100%">
+                        <thead class="text-primary">
+                            <tr>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+        var dataUrl = '@Url.Action("GetQuickSearchData", "Home")';
+</script>
+<script>
+    var grid;
+    $(document).ready(function () {
+        grid = $('#example').DataTable({
+            "searching": false,
+            "processing": true,
+            "serverSide": true,
+            "columns": [
+                {
+                    "data": "navigationLink",
+                    "mRender": function (data, type, row) {
+                        var template = kendo.template($("#categoryDocumentTemplate").html())
+                        return template(row);
+                    },
+                    "searchable": false,
+                    "orderable": true
+                }
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "data": function (d) {
+                    d.dbColumn = $("#dbColumn").val()
+                    d.searchValue = $("#searchText").val()
+                    d.operator = "cn"
+                },
+                "error": function (xhr, error, code) {
+                    //debugger;
+                    if (code == "Unauthorized") {
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                    }
+                }
+            }
+        });
+    });
+
+    function search() {
+        grid.ajax.reload();
+    }
+
+    function triggerSearch(event) {
+        if (event.keyCode === 13) {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            search();
+        }
+    }
+</script>
+
+<script type="text/html" id="categoryDocumentTemplate">
+    #if(type=="CategoryName") {#
+    <div>#=name#</div>
+    <div>
+        <a href='/Home/Index/#=id#'>
+            #= generateBreadCrumbPath(clickablePath, id) #
+        </a>
+    </div>
+    #} else {#
+
+    <div class="btn-group">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            #=name#
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" target="_blank" href='/Home/ViewDocument/#:id#/#:documentTypeId#'>View</a>
+            #if(canDownload == true){#
+            <a class="dropdown-item" download target='_blank' href='/Home/DownloadDocument/#:id#/#:documentTypeId#'>Download</a>
+            #}#
+        </div>
+    </div>
+
+    <div>
+        <a href='/Home/ViewDocument/#=id#/#:documentTypeId#'>
+            #= generateBreadCrumbPath(clickablePath, id) #
+        </a>
+    </div>
+    <div>
+        Doc. Code:#=docCode#
+    </div>
+    <div>
+        Doc. Unique No:#=docUniqueNo#
+    </div>
+    <div>
+        Rev. No.:#=revisionNumber#
+    </div>
+    <div>
+        Plant Name:#=plantName#
+    </div>
+    #}#
+</script>

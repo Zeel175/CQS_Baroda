@@ -1,0 +1,57 @@
+﻿@{
+	ViewData["Title"] = "Upload Employee";
+	ViewData["CurrentPage"] = "Upload Employee";
+}
+
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header card-header-primary card-header-container">
+				<h4 class="card-title ">Upload Employee(s)</h4>
+				<div class="card-header-actions">
+					<a href='@Url.Action("Index","Employee")' class="btn btn-warning">
+						<i class="fa fa-list"></i>
+						View
+					</a>
+				</div>
+			</div>
+
+			<div class="card-body" style="padding: 30px; ">
+				@using (Html.BeginForm(FormMethod.Post, true, new { enctype = "multipart/form-data" }))
+				{
+					<div class="form-row">
+						<div class="col-6" style="margin-bottom:15px">
+							<label>Upload  Employee Template File: </label>
+							<input type="file" name="file" id="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="form-control" />
+						</div>
+					</div>
+
+
+					<div class="form-row">
+						<div class="col-12">
+							<button type="submit" class="btn btn-success">Upload</button>
+						</div>
+					</div>
+
+					@if (ViewBag.SuccessMessage != null)
+					{
+						<div style="color:green; font-weight:bold; padding:10px; border:1px solid green;">
+							@Html.Raw(ViewBag.SuccessMessage)
+						</div>
+					}
+
+
+					@Html.ValidationSummary()
+
+
+					<div class="form-row mt-3">
+						<div class="col-12">
+							<a asp-action="Index">Back to List</a>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>

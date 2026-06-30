@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IsPackable>true</IsPackable>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageId>Saml2.Authentication.Core</PackageId>
+		<Description>A SAML 2.0 authentication middleware for ASP.NET Core</Description>
+		<Authors>Jessy Kyalo Musyimi</Authors>
+		<PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/jkmu/Saml2.Authentication.Core</RepositoryUrl>
+		<PackageTags>SAML 2.0, SAML2, ASP.NET Core, Authentication, Security</PackageTags>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<!--<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Core" Version="2.3.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
+		<PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
+	</ItemGroup>-->
+	<ItemGroup>
+		<!-- ✅ Use built-in authentication framework (no version mismatch) -->
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+
+		<!-- ✅ External and WCF dependencies -->
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
+	</ItemGroup>
+
+
+</Project>

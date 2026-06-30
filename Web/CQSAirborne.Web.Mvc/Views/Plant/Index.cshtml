@@ -1,0 +1,125 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.Grid;
+@{
+    ViewData["Title"] = "Plant";
+    ViewData["PageHeader"] = "Plant";
+    ViewData["CurrentPage"] = "Plant";
+}
+<style>
+    table .btn {
+        width: 50px;
+        padding: 0px !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Plant List</h4>
+
+                <div class="card-header-actions">
+                    <a href='@Url.Action("Create","Plant")' class="btn btn-warning">
+                        <i class="fa fa-plus"></i>
+                        Add New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                        <thead class="text-primary">
+                            <tr>
+                                <th>Plant Name</th>
+                                <th>Site Code</th>
+                                <th>City</th>
+                                <th>State</th>
+                                <th>Country</th>
+                                <th>EmailAddress</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var dataUrl = '@Url.Action("GetPlantData","Plant")';
+    var statusUrl = '@Url.Action("ChangeStatus", "Plant")';
+    var statusConfirmMsg = 'Are you sure you want to change the status of this plant?';
+    var grid;
+    $(document).ready(function () {
+        grid = $('#example').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": true,
+            "pageLength": 100,
+            "columns": [
+                { "data": "name" },
+                { "data": "alias" },
+                { "data": "city" },
+                { "data": "state" },
+                { "data": "country" },
+                { "data": "emailAddress" },
+                {
+                    "data": "isActive", "searchable": false,
+                    "mRender": function (data, type, row) {
+                        var template = kendo.template($("#active-template").html());
+                        return template({ id: row.id, isActive: row.isActive })
+                    },
+                    "searchable": false,
+                    "orderable": false
+                },
+                {
+                    "data": null,
+                    //"defaultContent": "<button type='button' class='btn btn-primary' onclick='getEditData(data)'>Edit</button>",
+                    "mRender": function (data, type, row) {
+                        return "<a href='/Plant/Edit/" + row.id + "'> <i class='fa fa-pencil'></i></a>"
+                    },
+                    "searchable": false,
+                    "orderable": false,
+                    "className": "center-content"
+                }
+            ],
+              "columnDefs": [
+                  { width:10, targets: 0 },
+                { width: 10, targets: 1 },
+                  { width: 10, targets: 2 },
+                  { width: 10, targets: 3 },
+                  { width: 10, targets: 4 },
+                  { width: 10, targets: 5 },
+                  { width: 10, targets: 6 }
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "error": function (xhr, error, code) {
+                    //debugger;
+                    if (code == "Unauthorized") {
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                    }
+                }
+            }
+        });
+    });
+
+</script>
+
+@(await Html.PartialAsync("_CommonListPartial"))

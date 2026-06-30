@@ -1,0 +1,37 @@
+﻿/*This CSS hides the whole popup div in browser  when  we create JavaScript to open div it will be shown. to show this popup on top we have written z-index of the popup 4 so that when ever clicked on the show popup button popup always on the top */
+
+.popup {
+    display: none; /*Hides Div by default*/
+    position: fixed; /*Fix the position of the css static*/
+    background-color: rgba(0,0,0,0.7);
+    /*sets the color of the popup Placement 0.7 show the opacity of the div.*/ 
+    width: 100%; /*to show popup on whole page*/
+    height: 100%; /*to show popup on whole page*/
+    z-index: 4; /*to show popup top of the page*/
+    top: 0; /*To start popup from the top*/
+    left: 0; /*To start popup from the left at 0 px*/
+}
+
+
+
+.popup-inner {
+    margin: auto; /*All margin sets to auto to keep content container in center except top*/
+    margin-top: 10%; /*it is also to set content container of the pop in center from the vertical direction*/
+    box-shadow: 15px 20px 35px rgba(0,0,0,0.5); /*Puts a shadow of the content container*/
+    /*border: 1px solid #d1d1d1; sets border*/
+    display: block; /*set display type*/
+    background-color: #fefefe; /*sets background Color*/
+    width: 50%; /*Sets width of the content container of the popup*/
+    padding: 0px;
+}
+
+.popup-header {
+    width: 100%;
+    background-color: #0394a6;
+    height: 35px;
+    padding: 5px;
+    color: white;
+}
+.inner-content {
+    padding: 15px 15px 15px 15px; /*sets padding from all side*/
+}

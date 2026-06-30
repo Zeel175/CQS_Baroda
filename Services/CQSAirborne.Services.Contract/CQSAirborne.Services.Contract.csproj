@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--<TargetFramework>netcoreapp2.1</TargetFramework>-->
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\CQSAirborne.Domain\CQSAirborne.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\CQSAirborne.Model\CQSAirborne.Model.csproj" />
+    <ProjectReference Include="..\..\Web\CQSAirborne.Web.Infrastructure\CQSAirborne.Web.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

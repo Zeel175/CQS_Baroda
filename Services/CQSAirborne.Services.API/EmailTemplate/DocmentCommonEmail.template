@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+	<style>
+	th{
+		border:1px solid black;
+		border-collapse:collapse;
+	}
+	table{
+	border-collapse:collapse;
+	}
+	</style>
+</head>
+<body>
+    <div style="padding:30px">
+        Dear Employee,<br /><br />
+        Notification on following amendment in Corporate Quality Systems Procedure / PCF Documents Updates:<br /><br />
+        <table style="border:1px solid;width:100%;border-collapse:collapse;" cellpadding="5">
+            <tr>
+                <th style="border:1px solid black;">Doc. Unique No.</th>
+                <th style="border:1px solid black;">Document Name</th>
+                <th style="border:1px solid black;">Revision No.</th>
+                <th style="border:1px solid black;">Status</th>
+            </tr>
+           
+            ###TableBody
+        </table>
+        <br />
+        <br />
+		Go to: TASL Sites --> QMS <br>
+		Link: <a href="https://CQSAirborne.taslaero.com" target="_blank">https://CQSAirborne.taslaero.com</a>
+        <br />
+        <br />
+        Regards,<br />
+        Team CQS
+    </div>
+</body>
+</html>

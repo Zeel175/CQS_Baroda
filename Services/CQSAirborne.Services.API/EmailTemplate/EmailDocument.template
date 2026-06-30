@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+	<style>
+	th{
+		border:1px solid black;
+		border-collapse:collapse;
+	}
+	table{
+	border-collapse:collapse;
+	}
+	</style>
+</head>
+<body>
+	<div style="padding:30px">
+		#EmployeeName#<br/>
+		Notification on following amendment in Corporate Quality Systems module/ #Location# <br/>
+		<table style="border:1px solid;width:100%;border-collapse:collapse;" cellpadding="5">
+			<tr>
+				<th style="border:1px solid black;">Doc. Unique No.</th>
+				<th style="border:1px solid black;">Document Name</th>
+				<th style="border:1px solid black;">Revision No.</th>
+				<th style="border:1px solid black;">Status</th>
+			</tr>
+			<tr>
+				<th style="border:1px solid black;">#DocuNo#</th>
+				<th style="border:1px solid black;">#DocuName#</th>
+				<th style="border:1px solid black;">#RevisionNo#</th>
+				<th style="border:1px solid black;">#Status#</th>
+			</tr>
+		</table>
+
+		<br/>
+		<br/>
+		Go to: TASL Sites--> COSMOS<br/>
+		Link: https://CQSAirborne.taslaero.com<br/>
+		--<br/>
+		Regards,<br/>
+		Team QMS<br/>
+	</div>
+</body>
+</html>

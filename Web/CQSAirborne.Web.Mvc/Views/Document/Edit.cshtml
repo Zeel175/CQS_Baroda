@@ -1,0 +1,71 @@
+﻿@model CQSAirborne.Model.Document.AddEditDocumentModel
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["CurrentPage"] = "Document";
+}
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Manage Document</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-controller="Document" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailed" data-ajax-loading="#spinner" data-ajax-complete="onComplete">
+
+                    @(await Html.PartialAsync("_CreateEditPartial"))
+
+
+                    @await Component.InvokeAsync("DocumentHistory", new { documentId = Model.Id })
+
+                    <div>
+                        <a asp-action="Index">Back to List</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script>
+    var isEmail = false;
+    var isSendEmailLater = false;
+
+    $("#SaveSend").click(function () {
+        isEmail = true
+    })
+    $("#btnSave").click(function () {
+        isSendEmailLater = true
+    })
+
+    var onSuccess = function (data) {
+        debugger;
+        if (isEmail) {
+            OpenPopupWithUrl("../../Document/EmailDocument/" + @Model.Id + "");
+        }
+        else if (isSendEmailLater) {
+            OpenPopupWithUrl("../../Document/EmailDocument?id=" + @Model.Id + "&&isSendLater=true");
+        }
+        else {
+            debugger;
+            window.location.href = "../../Document/Edit/" + data.id;
+        }
+    };
+    var onFailed = function (data) {
+        debugger;
+        $.validator.unobtrusive.parse($(data));
+        if (data != null && data.responseJSON != null && data.responseJSON[0] != null && data.responseJSON[0].errors != null) {
+            toastr.error(data.responseJSON[0].errors);
+        }
+        //$("#ModelStateError").load(data.errors.Name)
+    }
+    var onComplete = function () {
+        $("#spinner").hide();
+    }
+</script>

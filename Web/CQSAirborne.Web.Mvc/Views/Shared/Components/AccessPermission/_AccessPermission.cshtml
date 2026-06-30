@@ -1,0 +1,102 @@
+﻿@model IEnumerable<CQSAirborne.Model.Role.AssignPermissionViewModel>
+@{
+    Layout = null;
+}
+
+
+<fieldset>
+    @*<legend>Assign Permission</legend>*@
+    <div class="row">
+        <div class="col-md-12">
+            <div class="expanel expanel-success">
+                <div class="expanel-heading" style="padding-top: 1px !important;">
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <h4 style="font-weight: bold;color: #00bcd4;font-size: 20px;margin-left: -15px;">Assign Permission</h4>
+                        </div>
+                    </div>
+                    <hr style="margin-top: 0px !important;" />
+                </div>
+                <div class="expanel-body">
+                    <table class="table table-responsive-sm table-bordered">
+                        <thead class="bg-lime text-primary">
+                            <tr>
+                                <th style="color:white">
+                                    Permission
+                                </th>
+                                <th style="color:white">
+                                    View
+                                </th>
+                                <th style="color:white">
+                                    Add
+                                </th>
+                                <th style="color:white">
+                                    Edit
+                                </th>
+                                <th style="color:white">
+                                    Delete
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var permission in Model)
+                            {
+                                <tr data-permission-container="@permission.Code">
+                                    <td>@permission.Name</td>
+                                    <td>
+                                        @*onchange="changeAccess('@permission.Code', '@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.List')"*@
+                                        <input type="checkbox" style="@((permission.Name == "CPR Form") ? "display:none" : "display:block")" data-depended-acess="@permission.Code" data-code="@permission.Code" data-type="@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.List" @(permission.IsList ? "checked" : "") />
+                                    </td>
+                                    <td>
+                                        @*onchange="changeAccess('@permission.Code', '@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Add')"*@
+                                        <input type="checkbox" style="@((permission.Name == "Dashboard") || (permission.Name == "Master PCF Tracker") || (permission.Name == "TASL PCF Count") || (permission.Name == "Quality Alerts") || (permission.Name == "Standards") || (permission.Name == "Traning and Support") || (permission.Name == "Company Credentials") ? "display:none" : "display:block")" data-depended-acess="@permission.Code" data-code="@permission.Code" data-type="@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Add" @(permission.IsAdd ? "checked" : "") />
+                                    </td>
+                                    <td>
+                                        @*onchange="changeAccess('@permission.Code', '@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Edit')"*@
+                                        <input type="checkbox" style="@((permission.Name == "Dashboard") || (permission.Name == "Master PCF Tracker") || (permission.Name == "CPR Form") || (permission.Name == "TASL PCF Count") || (permission.Name == "Quality Alerts") || (permission.Name == "Standards") || (permission.Name == "Traning and Support") || (permission.Name == "Company Credentials") ? "display:none" : "display:block")" data-depended-acess="@permission.Code" data-code="@permission.Code" data-type="@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Edit" @(permission.IsEdit ? "checked" : "") />
+                                    </td>
+                                    <td>
+                                        @*<input type="checkbox" style="@((permission.Name == "Dashboard" || permission.Name == "Application"  || permission.Name == "Check Credit Score" || permission.Name == "Due Loan Details" || permission.Name == "Disburse Loan Details"|| permission.Name == "Earned Interest Details") ? "display:none" : "display:block")" data-depended-acess="@permission.Code" onchange="changeAccess('@permission.Code', '@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Delete')" data-code="@permission.Code" data-type="@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Delete" @(permission.IsEdit ? "checked" : "") />
+                                            <input type="checkbox" data-code="@permission.Code" onchange="changeAdminAccess('@permission.Code', this)" @(permission.IsAdmin ? "checked" : "") />*@
+                                        <input type="checkbox" style="@((permission.Name == "CPR Master") || (permission.Name == "Document")  ? "display:block" : "display:none")" data-depended-acess="@permission.Code" data-code="@permission.Code" data-type="@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Delete" @(permission.IsDelete ? "checked" : "") />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<script>
+    function changeAdminAccess(permissionCode, elem) {
+        //debugger;
+        var isChecked = $(elem).is(":checked");
+        console.log(isChecked)
+        if (isChecked == true) {
+            console.log("[data-depended-acess=" + permissionCode + "]");
+            $("[data-depended-acess=" + permissionCode + "]").prop('checked', true);
+        }
+    }
+
+    function getPermissions() {
+        //debugger;
+        var permissionElements = $("[data-permission-container]");
+        var result = [];
+        $.each(permissionElements, function (i, element) {
+            var permissionCode = $(element).attr("data-permission-container");
+            result.push({
+                Code: permissionCode,
+                IsList: $("[data-code=" + permissionCode+"][data-type=@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.List]").is(":checked"),
+                IsAdd: $("[data-code=" + permissionCode + "][data-type=@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Add]").is(":checked"),
+                IsEdit: $("[data-code=" + permissionCode + "][data-type=@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Edit]").is(":checked"),
+                IsDelete: $("[data-code=" + permissionCode + "][data-type=@CQSAirborne.Model.Core.Constants.PermissionTypeConstant.Delete]").is(":checked")
+            });
+        });
+        return result;
+    }
+</script>
+

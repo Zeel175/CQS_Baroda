@@ -1,0 +1,93 @@
+﻿@model CQSAirborne.Model.Plant.AddEditPlantModel
+
+@Html.HiddenFor(w => w.Id)
+@Html.HiddenFor(w => w.DMRUserIds)
+@Html.HiddenFor(w => w.MRUserIds)
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@Html.AntiForgeryToken()
+
+<div class="form-row">
+    <div class="col-6">
+        <input type="hidden" asp-for="IsCPREnable" />
+        @Html.RequiredLabelFor(w => w.Name)
+        @Html.TextBoxFor(w => w.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(w => w.Name)
+    </div>
+    <div class="col-6">
+        @Html.RequiredLabelFor(w => w.Alias)
+        @Html.TextBoxFor(w => w.Alias, new { @class = "form-control" })
+        @Html.ValidationMessageFor(w => w.Alias)
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-6">
+        @Html.LabelFor(w => w.AddressLine1)
+        @Html.TextBoxFor(w => w.AddressLine1, new { @class = "form-control ignoreKeyPress" })
+        @* @Html.ValidationMessageFor(w => w.AddressLine1) *@
+    </div>
+    <div class="col-6">
+        @Html.LabelFor(w => w.AddressLine2)
+        @Html.TextBoxFor(w => w.AddressLine2, new { @class = "form-control ignoreKeyPress" })
+        @* @Html.ValidationMessageFor(w => w.AddressLine2) *@
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-6">
+        @Html.LabelFor(w => w.PinCode)
+        @Html.TextBoxFor(w => w.PinCode, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.PinCode) *@
+    </div>
+    <div class="col-6">
+        @Html.LabelFor(w => w.City)
+        @Html.TextBoxFor(w => w.City, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.City) *@
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-6">
+        @Html.LabelFor(w => w.State)
+        @Html.TextBoxFor(w => w.State, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.State) *@
+    </div>
+    <div class="col-6">
+        @Html.LabelFor(w => w.Country)
+        @Html.TextBoxFor(w => w.Country, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.Country) *@
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-6">
+        @Html.LabelFor(w => w.PhoneNumber)
+        @Html.TextBoxFor(w => w.PhoneNumber, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.PhoneNumber) *@
+    </div>
+    <div class="col-6">
+        @Html.LabelFor(w => w.EmailAddress)
+        @Html.TextBoxFor(w => w.EmailAddress, new { @class = "form-control ignoreKeyPress" })
+        @* @Html.ValidationMessageFor(w => w.EmailAddress) *@
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-6">
+        @Html.LabelFor(w => w.WebSite)
+        @Html.TextBoxFor(w => w.WebSite, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.WebSite) *@
+    </div>
+    <div class="col-6">
+        @Html.RequiredLabelFor(w => w.DisplayOrder)
+        @Html.TextBoxFor(w => w.DisplayOrder, new { @class = "form-control", @type="number" })
+        @Html.ValidationMessageFor(w => w.DisplayOrder)
+    </div>
+</div>
+
+
+<div class="form-row">
+    <div class="col-12">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</div>

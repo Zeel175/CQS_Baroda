@@ -1,0 +1,71 @@
+﻿@model CQSAirborne.Model.Document.AddEditDocumentModel
+@{
+    ViewData["Title"] = "Create";
+    ViewData["CurrentPage"] = "Document";
+}
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Manage Document</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="Document" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailed" data-ajax-loading="#spinner" data-ajax-complete="onComplete">
+                    <div class="validation-summary-errors" id="ModelStateError"></div>
+                    @(await Html.PartialAsync("_CreateEditPartial"))
+
+                </form>
+                <div>
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script>
+    var isEmail = false;
+    var isSendEmailLater = false;
+    $("#SaveSend").click(function () {
+        isEmail = true
+    })
+
+    $("#btnSave").click(function () {
+        isSendEmailLater = true
+    })
+
+    var onSuccess = function (data) {
+        debugger;
+    var dt = JSON.parse(data);
+            var docId = dt.result.id;
+            var docno = dt.id;
+            if(docId != null && docId != undefined){
+                docno = docId;
+            }
+
+        if (isEmail) {
+            
+            OpenPopupWithUrl("../../Document/EmailDocument/" + docno + "");
+        }
+        else if (isSendEmailLater) {
+            
+            //OpenPopupWithUrl("../../Document/EmailDocument/" + dt.id + "");
+            OpenPopupWithUrl("../../Document/EmailDocument?id=" + docno + "&&isSendLater=true");
+        }
+        else {
+            window.location.href = "../../Document";
+        }
+    };
+    var onFailed = function (data) {
+        $.validator.unobtrusive.parse($(data));
+        //$("#ModelStateError").load(data.errors.Name)
+    }
+    var onComplete = function () {
+        $("#spinner").hide();
+    }
+</script>

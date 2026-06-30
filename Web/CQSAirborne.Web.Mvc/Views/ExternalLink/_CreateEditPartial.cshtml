@@ -1,0 +1,58 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.DropZone
+@using CQSAirborne.Web.Infrastructure.Helpers.Dropdown
+@using CQSAirborne.Web.Infrastructure.Helpers.DatePicker
+@using CQSAirborne.Web.Infrastructure.Helpers.Editor
+@using CQSAirborne.Web.Infrastructure.Helpers.MultiSelect
+@using CQSAirborne.Model.Core
+@model CQSAirborne.Model.ExternalLink.AddEditExternalLinkModel
+
+<script>
+    function onCategoryChange(data) {
+        var primaryCategory = data.sender.dataItem().primaryCategoryName;
+        $("#PrimaryCategory").val(primaryCategory);
+    }
+</script>
+
+@Html.HiddenFor(w=>w.Id)
+@Html.AntiForgeryToken()
+
+<div class="form-row">
+    <div class="col-4">
+        @Html.RequiredLabelFor(w => w.Name)
+        @Html.TextBoxFor(w => w.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(w => w.Name)
+    </div>
+
+    <div class="col-4">
+        @Html.RequiredLabelFor(w => w.Url)
+        @Html.TextBoxFor(w => w.Url, new { @class = "form-control ignoreKeyPress" })
+        @Html.ValidationMessageFor(w => w.Url)
+    </div>
+    <div class="col-4">
+        @Html.LabelFor(w => w.Priority)
+        @Html.TextBoxFor(w => w.Priority, new { @class = "form-control", @type="number" })
+        @Html.ValidationMessageFor(w => w.Priority)
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-12">
+        @Html.LabelFor(w => w.ShortDescription, "Description")
+        @Html.TextAreaFor(w => w.ShortDescription, new { @class = "form-control" })
+        @* @Html.ValidationMessageFor(w => w.ShortDescription) *@
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-12">
+        @Html.LabelFor(w => w.LongDescription, "Long Description")
+        @(Html.TextEditorFor(w => w.LongDescription).HtmlAttributes( new { @class = "form-control" }).Render())
+        @Html.ValidationMessageFor(w => w.LongDescription)
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="col-12">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</div>

@@ -1,0 +1,94 @@
+﻿@using System.Security.Claims
+@using CQSAirborne.Web.Mvc.Utils
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CQS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="~/lib/kendo/kendo.core.min.js"></script>
+    <script src="~/lib/kendo/kendo.data.min.js"></script>
+    <script src="~/lib/kendo/kendo.ui.core.min.js"></script>
+    <link href="~/lib/kendo/kendo.common-material.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/kendo.material.min.css" rel="stylesheet" />
+    <link href="~/lib/octicons/octicons.css" rel="stylesheet" />
+    <link href="~/lib/dataTable/dataTables.bootstrap4.css" rel="stylesheet" />
+    <link href="~/Multiselect/css/fSelect.css" rel="stylesheet" />
+    <script src="~/lib/dataTable/jquery.dataTables.js"></script>
+    <script src="~/lib/dataTable/dataTables.bootstrap4.js"></script>
+    <script src="~/lib/dropzone/dropzone.js"></script>
+    <script src="~/lib/ckeditor/ckeditor.js"></script>
+    <link href="~/Multiselect/js/fSelect.js" rel="stylesheet" />
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CQS</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    @if (User.Identity.IsAuthenticated && ((ClaimsIdentity)User.Identity).GetSpecificClaim("OrgRole") == "Admin")
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                @Html.ActionLink("Plant", "Index", "Plant", null, new { @class = "nav-link" })
+                            </li>
+                            <li class="nav-item">
+                                @Html.ActionLink("External Link", "Index", "ExternalLink", null, new { @class = "nav-link" })
+                            </li>
+                            <li class="nav-item">
+                                @Html.ActionLink("Category", "Index", "Category", null, new { @class = "nav-link" })
+                            </li>
+                            <li class="nav-item">
+                                @Html.ActionLink("Document", "Index", "Document", null, new { @class = "nav-link" })
+                            </li>
+                            <li class="nav-item">
+                                @Html.ActionLink("Logout", "Logout", "Account", null, new { @class = "nav-link" })
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        @Html.ActionLink("Login", "Login", "Account", null, new { @class = "nav-link" })
+                    }
+                    @*@if (User.Identity.IsAuthenticated)
+                        {
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    @Html.ActionLink("Plant", "Index", "Plant")
+                                </li>
+                            </ul>
+                        }
+                        else
+                        {
+                            @Html.ActionLink("Login", "Login", "Account")
+                        }*@
+
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <partial name="_CookieConsentPartial" />
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2019 - CQS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

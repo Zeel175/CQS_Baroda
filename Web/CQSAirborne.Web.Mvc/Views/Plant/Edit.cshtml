@@ -1,0 +1,20 @@
+﻿@model CQSAirborne.Model.Plant.AddEditPlantModel
+@{
+    ViewData["title"] = "Manage";
+    ViewData["CurrentPage"] = "Plant";
+}
+
+<h4>Manage Plant</h4>
+<hr />
+
+@using (Html.BeginForm(FormMethod.Post, true, new
+{
+
+}))
+{
+    @(await Html.PartialAsync("_CreateEditPartial"))
+}
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

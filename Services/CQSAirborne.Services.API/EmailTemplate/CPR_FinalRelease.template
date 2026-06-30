@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Document Release Notification</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding:20px;">
+
+<table width="750" align="center" cellpadding="0" cellspacing="0"
+       style="background-color:#ffffff; padding:25px; border-radius:8px;">
+
+    <tr>
+        <td style="font-size:18px; font-weight:bold; color:#003366;">
+            #CompanyName#
+        </td>
+    </tr>
+
+    <tr><td height="20"></td></tr>
+
+    <tr>
+        <td>Dear Team,</td>
+    </tr>
+
+    <tr><td height="10"></td></tr>
+
+    <tr>
+        <td>
+            The following document has been released on the AQMS Portal is now available for use.
+        </td>
+    </tr>
+
+    <tr><td height="20"></td></tr>
+
+    <tr>
+        <td>
+            <table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse:collapse;">
+                <tr style="background:#e9ecef; font-weight:bold;">
+                    <td>CPR No.</td>
+                    <td>Released Date</td>
+                    <td>Process/Department</td>
+                    <td>Doc. No.</td>
+                    <td>Doc. Name</td>
+                    <td>Doc Rev. No.</td>
+                    
+                    <td>Doc. Category</td>
+                </tr>
+                <tr>
+                    <td>#CPRNumber#</td>
+                    <td>#ReleaseDate#</td>
+                    <td>#Department#</td>
+                    <td>#DocNumber#</td>
+                    <td>#DocName#</td>
+                    <td>#RevisionNo#</td>
+                    
+                    <td>#DocCategory#</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr><td height="25"></td></tr>
+
+    <tr>
+        <td>
+            You may access the document by navigating to: 
+            <b>Login → Dashboard → Level → Document Category</b> (as mentioned in the table above)
+        </td>
+    </tr>
+
+    <tr><td height="15"></td></tr>
+
+    <tr>
+        <td>
+            Portal Link : <a href="#PortalLink#">#PortalLink#</a>
+        </td>
+    </tr>
+
+    <tr><td height="30"></td></tr>
+
+    <tr style="display:none">
+        <td style="font-size:12px; color:#777;">
+            This is an automated email from AQMS System.
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>

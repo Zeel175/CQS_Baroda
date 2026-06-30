@@ -1,0 +1,169 @@
+﻿@using CQSAirborne.Model
+@using BotDetect.Web.Mvc
+
+@model LoginViewModel
+@{
+    Layout = "~/Views/Shared/_MaterialThemeLoginLayout.cshtml";
+    ViewData["Title"] = "Login";
+}
+@*<link href="@BotDetect.Web.CaptchaUrls.Absolute.LayoutStyleSheetUrl"
+      rel="stylesheet" type="text/css" />*@
+<link href="~/css/Custom.css" rel="stylesheet" />
+<style>
+    .hidden {
+        display: none !important;
+    }
+</style>
+<style>
+    .passwordType {
+        -webkit-text-security: disc;
+    }
+
+    /*.fake-input {
+        width: 100%;
+        text-align: left;
+        position: absolute;
+        padding-top: 15px;
+    }
+    .real-input {
+        background: transparent;
+        opacity: 0;
+    }*/
+</style>
+<div class="container-login100" style="background-color:#fff !important;min-height:unset!important;">
+
+    <div class="row" style="width:100%;">
+        <div class="col-md-8">
+            <div class="col-md-12 mbSize" style="width:100%">
+                <div class="form-group">
+                    <img src="~/assets/img/client/TTAdvance_New.png" style="width:190px" />
+                </div>
+            </div>
+            <div class="col-md-12 hidden-xs" style="padding-top:60px;width:100%">
+                <img src="~/assets/img/client/login_banner.png" style="width:95%" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="col-md-12 mbSize hidden-xs" style="width:100%;padding-bottom:150px;margin-top: -25px;">
+                <div class="form-group mbAlign" style="float:right;">
+                    <img src="~/assets/img/client/OneStop_New.png" style="width:240px" />
+                </div>
+            </div>
+            <div class="wrap-login100 LoginBoxRight" align="center" style="border:none;min-height:435px;box-shadow:none !important;margin-top: 0px;">
+                @using (Html.BeginForm("LoginLdap", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, true, new { @class = "login100-form validate-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <span class="login100-form-title p-b-70 visible-xs">
+                        <img src="~/assets/img/client/OneStop_New.png" style="width:290px" />
+                        @*<label style="width:100%;font-size:14px;padding-top:7px;">COSMOS Login</label>*@
+                    </span>
+                    <span style="color:red;text-align-last:center;margin-bottom:25px;">
+                        @ViewBag.Message
+                    </span>
+                    <div style="margin-top:20px;">
+                        <div class="wrap-input100 validate-input" data-validate="Enter valid Username">
+                            @*@Html.TextBoxFor(w => w.UserName, "", new { @class = "input100" })*@
+                            <input asp-for="UserName" class="input100" autocomplete="off" />
+                            <span class="focus-input100" data-placeholder="UserName"></span>
+                        </div>
+
+                        <div class="wrap-input100 validate-input" data-validate="Enter password" style="margin-bottom:20px;">
+                            <span class="btn-show-pass">
+                                <i class="zmdi zmdi-eye"></i>
+                            </span>
+                            @*@Html.PasswordFor(w => w.Password, new { @class = "input100" })*@
+                            @*<div class="input100 fake-input" contentEditable="true"></div>*@
+                            @*onKeyUp="RemoveSavedPassword()"*@
+                            <input asp-for="Password" type="text" class="input100 real-input passwordType" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');" />
+                            <span class="focus-input100" data-placeholder="Password"></span>
+                        </div>
+                        @*<div style="">
+                                <label style="font-weight: bold;color: #546bf1;padding: 3px 0px;">Captcha</label>
+                            </div>
+                            <captcha id="ExampleCaptcha" user-input-id="CaptchaCode" />
+
+                            <div class="wrap-input50 validate-input" style="margin-bottom: 8px;">
+                                <div class="actions">
+                                    <input asp-for="CaptchaCode" placeholder="Enter Captcha" class="input100" style="text-align: center;font-weight: bold;" required />
+
+                                    @if ((Context.Request.Method.ToUpper() == "POST") && ViewData.ModelState.IsValid)
+                                    {
+                                        <span class="correct">Correct!</span>
+                                    }
+                                </div>
+                            </div>
+                            <span asp-validation-for="CaptchaCode" style="color: red;"></span>*@
+
+                        <div class="container-login100-form-btn" style="width:60%;margin-top: 12px;">
+                            <div class="wrap-login100-form-btn">
+                                <div class="login100-form-bgbtn"></div>
+                                <button type="submit" class="login100-form-btn" style="background-color:#546bf1 !important">
+                                    Login
+                                </button>
+                            </div>
+
+                            <div style="width:100%;margin-top:10px;">
+                                <a href="../../auth/login" class="btn btn-primary">SSO Login</a>
+                                @*<a href="../../account/ExternalLogin?provider=@(LoginScheme.scheme)&returnUrl=@ViewData["ReturnUrl"]" class="btn btn-primary">SSO Login</a>*@
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="text-center p-t-115" style="padding-top:15px !important;padding-bottom:30px;">
+
+                        <a class="txt2" href="~/Account/ForgotPassword">
+                            Forgot Password
+                        </a>
+                    </div>
+                    @*<span class="login100-form-title">
+                            <img src="~/assets/img/client/TTAdvance_New.png" style="width:180px" />
+                        </span>*@
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+<script>
+    $('#ExampleCaptcha_CaptchaImage_HelpLink').attr('title', 'Captcha');
+    $('#ExampleCaptcha_SoundLink').attr('style', 'display:none !important');
+    $('#ExampleCaptcha_SoundLink').addClass('hidden');
+
+
+</script>
+
+@*<!DOCTYPE html>
+
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>Login</title>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </head>
+    <body>
+        @using (Html.BeginForm("Login", "Account", null, FormMethod.Post, true, new { }))
+        {
+            <div class="form-group">
+                @Html.LabelFor(w => w.UserName)
+                @Html.TextBoxFor(w => w.UserName, "", new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(w => w.Password)
+                @Html.PasswordFor(w => w.Password, new { @class = "form-control" })
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        }
+    </body>
+    </html>*@
+
+@*<script src="~/js/jquery-migrate-3.3.2.js"></script>
+<script>
+    if (navigator.userAgent.indexOf("Firefox") != -1 || (navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode == true)) {
+        $("#Password").attr("type", "password");
+    }
+</script>*@

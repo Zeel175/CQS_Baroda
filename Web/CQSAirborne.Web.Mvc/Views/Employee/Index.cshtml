@@ -1,0 +1,200 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.Grid;
+@using static CQSAirborne.Model.Core.Constants;
+@using CQSAirborne.Model.Core;
+@using System.Security.Claims
+@using CQSAirborne.Web.Mvc.Utils
+@using Newtonsoft.Json;
+@{
+    ViewData["Title"] = "Employee";
+    ViewData["CurrentPage"] = "Employee";
+    ViewData["PageHeader"] = "Employee";
+
+    bool isAdmin = ((ClaimsIdentity)User.Identity).GetSpecificClaim("OrgRole") != null && ((ClaimsIdentity)User.Identity).GetSpecificClaim("OrgRole") == "Admin" ? true : false;
+}
+<link href="~/datatableexportcssjs/buttons.datatables.min.css" rel="stylesheet" />
+<script src="~/datatableexportcssjs/datatables.buttons.min.js"></script>
+<script src="~/datatableexportcssjs/buttons.html5.min.js"></script>
+<script src="~/datatableexportcssjs/jszip.min.js"></script>
+<style>
+    td {
+        word-wrap: break-word;
+    }
+    table .btn {
+        width: 60px;
+        padding: 0px !important;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Employee List</h4>
+
+                <div class="card-header-actions">
+                    <a href="javascript:void(0)" id="btnExportExcel" class="btn btn-success">
+                        <i class="fa fa-file"></i>
+                        Export to Excel
+                    </a>
+                    <a href='@Url.Action("Create","Employee")' class="btn btn-warning">
+                        <i class="fa fa-plus"></i>
+                        Add New
+                    </a>
+
+                    <a href="@Url.Action("Upload","Employee")" class="btn btn-success">
+                        <i class="fa fa-upload"></i>
+                        Upload Employee
+                    </a>
+
+                    <a href="@Url.Action("DownloadTemplate","Employee")" download="" class="btn btn-primary">
+                        <i class="fa fa-download"></i>
+                        Download Template
+                    </a>
+                  
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                        <thead class="text-primary">
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Emp Id</th>
+                                <th>Group Id</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Plant</th>
+                                <th>Plant Access</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // var dataUrl = '@Url.Action("GetData","Employee")';
+    var dataUrl = '@Url.Action("GetAllDataForViewPage", "Employee")';
+    var statusUrl = '@Url.Action("ChangeStatus", "Employee")';
+    var statusConfirmMsg = 'Are you sure you want to change the status of this employee?';
+
+    var grid;
+    function BindGrid() {
+
+        grid = $('#example').DataTable();
+        grid.destroy();
+
+        grid = $('#example').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": false,
+            "pageLength": 100,
+            "scrollX": true,
+            "scrollY": '450px',
+              // dom: 'frtip',   // IMPORTANT
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            title: 'Employee List',
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6,7]  // Excluding Actions column (index 8)
+            }
+        }
+    ],
+            "columns": [
+                { "data": "employeeName" },
+                { "data": "empId" },
+                { "data": "groupId" },
+                { "data": "department" },
+                { "data": "designation" },
+                { "data": "plantName" },
+                { "data": "plantAlias" },
+                  {
+                    "data": "isActive",
+                    "mRender": function (data, type, row) {
+                        var template = kendo.template($("#active-template").html());
+                        return template({ id: row.id, isActive: row.isActive })
+                    },
+                    "searchable": false,
+                    "orderable": false
+                },
+                {
+                    "data": null,
+                    "mRender": function (data, type, row) {
+                        var template = "<a href='/Employee/Edit/" + row.id + "'> <i class='fa fa-pencil'></i></a>";
+                        // <a style='display:@(isAdmin == true ? "" : "none")' onclick='DeleteEmployee(" + row.id + ")'> <i  class='fa fa-trash' style='color:#00bcd4 !important;cursor:pointer !important'></i></a>
+                        return template;
+                    },
+                    "searchable": false,
+                    "orderable": false
+                }
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "error": function (xhr, error, code) {
+                    //debugger;
+                    if (code == "Unauthorized") {
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                    }
+                }
+            }
+
+        });
+    }
+    $(document).ready(function () {
+        BindGrid();
+            $('#btnExportExcel').on('click', function () {
+        grid.button('.buttons-excel').trigger();
+    });
+    });
+</script>
+
+<script>
+    function DeleteEmployee(id) {
+        debugger;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.getJSON("../../Employee/DeleteEmployee?id=" + id + "", function () {
+                    debugger;
+                    Swal.fire(
+                        'Deleted!',
+                        'Record has been deleted.',
+                        'success'
+                    );
+
+                    BindGrid();
+                });
+            }
+        })
+    }
+
+</script>
+
+@(await Html.PartialAsync("_CommonListPartial"))

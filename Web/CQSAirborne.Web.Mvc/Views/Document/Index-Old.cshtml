@@ -1,0 +1,483 @@
+﻿@model CQSAirborne.Model.Document.DocumentListDataModel
+@using System.Security.Claims
+@using CQSAirborne.Web.Mvc.Utils
+@{
+    ViewData["Title"] = "Document";
+    ViewData["CurrentPage"] = "Document";
+    ViewData["PageHeader"] = "Document";
+}
+@*<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">*@
+<link href="~/css/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+<style>
+
+    #boxToggle > .toggle {
+        width: 120px !important;
+        height: 40px !important;
+    }
+
+    .toggle-on.btn {
+        padding-right: 48px !important;
+    }
+
+    .toggle-off.btn {
+        padding-left: 35px !important;
+    }
+
+    use {
+        pointer-events: none;
+    }
+
+    .text-primary {
+        background: white;
+    }
+
+    .label {
+        margin: .0rem !important;
+    }
+
+    table.dataTable {
+        clear: both;
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+        max-width: none !important;
+        border-collapse: separate !important;
+        border: 0px;
+    }
+
+    .DTFC_LeftBodyWrapper {
+        background: white;
+    }
+
+    .table table-striped {
+        margin: 0px !important;
+    }
+
+    #example div.dataTables_scrollHeadInner thead tr {
+        height: 5em;
+    }
+
+    th, td {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        margin: 0 auto;
+    }
+
+    .text-wrap {
+        white-space: normal;
+    }
+
+    .text-no-wrap {
+        white-space: nowrap;
+    }
+
+    .width-200 {
+        /*width: 200px;*/
+    }
+
+    .width-250 {
+        /*width: 250px;*/
+    }
+
+    .width-100 {
+        width: 100px;
+        white-space: normal !important;
+    }
+
+    .width-150 {
+        /*width: 150px;*/
+        white-space: normal !important;
+    }
+
+    .width-130 {
+        /*width: 130px !important;*/
+        white-space: normal !important;
+    }
+
+    .width-50 {
+        width: 50px;
+    }
+
+    .width-300 {
+        width: 300px;
+    }
+
+    .dashboard-grid-fix-button {
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important
+    }
+
+    td > .btn-group {
+        margin: 0 !important;
+    }
+
+    td > button {
+        padding: 0px 5px 0px 5px !important;
+    }
+
+    .table col:nth-child(n+4) {
+        width: 70px !important
+    }
+
+    .table {
+        overflow-x: auto
+    }
+
+    .dashboard-grid-fix-button {
+        width: 50px;
+        padding: 0px !important;
+    }
+
+    .container {
+        max-width: 100% !important
+    }
+
+    td, th {
+        text-align: center !important
+    }
+
+    table {
+        table-layout: fixed;
+    }
+
+        table th {
+            word-wrap: break-word;
+            max-width: 70px !important;
+            white-space: inherit;
+        }
+
+        table.table-bordered.dataTable td, table.table-bordered.dataTable th {
+            border-right-width: 1px !important;
+        }
+
+            table.table-bordered.dataTable td:first-child, table.table-bordered.dataTable th:first-child {
+                border-left-width: 1px !important;
+            }
+
+    #tableHeader > th {
+        vertical-align: middle;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+</style>
+
+@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title ">Document List</h4>
+                <div class="card-header-actions">
+                    <a href='@Url.Action("Create", "Document")' class="btn btn-warning">
+                        <i class="fa fa-plus"></i>
+                        Add New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped table-bordered " cellspacing="0" >
+                        <thead class="text-primary">
+                            <tr id="tableHeader">
+                                <th class="tableHeaderWidth-130">Doc. Unique No.</th>
+                                <th class="tableHeaderWidth-230" style="text-align:left !important">Document Name</th>
+                                <th>Rev. No.</th>
+                                <th class="tableHeaderWidth-230" style="text-align:left !important">Category</th>
+                                <th class="tableProcessOwnerHeaderWidth" style="text-align: left !important">Process Owner</th>
+                                <th>Status</th>
+                                @foreach (var plant in Model.Plants)
+                                {
+                                    <th style="width: 70px !important; word-wrap: break-word !important ">@plant.Code</th>
+                                }
+                                <th style="padding:10px !important">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="color:#00bcd4;">Change Document Status</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label id="AlertMsg" style="color:red;font-weight:bold"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="divNotify">
+                    <div class="col-md-3 col-xs-6" style="margin-top:12px;">
+                        Notification
+                    </div>
+                    <div class="col-md-9 col-xs-6" id="boxToggle">
+                        <input type="checkbox" id="IsNotify" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <input type="hidden" id="BoxId" />
+                <input type="hidden" id="BoxStatus" />
+                <button type="button" class="btn btn-primary" id="btnChangeStatus">Yes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@*<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>*@
+<script src="~/js/bootstrap-toggle.min.js"></script>
+
+<script>
+
+    @*var dataUrl = '@Url.Action("GetDocumentData","Document")';*@
+    var dataUrl = '@Url.Action("GetDocumentDataNew","Document")';
+    var statusUrl = '@Url.Action("ChangeStatusNew", "Document")'
+    var statusConfirmMsg = 'Are you sure you want to change the status of this document?';
+    var grid;
+    $(document).ready(function () {
+        var plants = JSON.parse('@Html.Raw(Json.Serialize(Model.Plants))');
+        plants = _.sortBy(plants, "displayOrder");
+        var columns = [
+        { "data": "documentNumber" },
+        { "data": "name" },
+        { "data": "revisionNumber" },
+        { "data": "category" },
+            { "data": "processOwner" },
+            {
+                "data": "isActive",
+                "mRender": function (data, type, row) {
+                    var template = kendo.template($("#active-template-doc").html());
+                    return template({ id: row.id, isActive: row.isActive })
+                },
+                "searchable": false,
+                "orderable": false
+            }];
+
+        $.each(plants, function (i, v) {
+            columns.push({
+                "data": null,
+                "searchable": false,
+                "orderable": false,
+                "width":5,
+                "mRender": function (data, type, row) {
+                    var documentPlant = row.plants.filter(function (w) {
+                        return w.plantId == v.id;
+                    })[0];
+
+                    if (documentPlant != null && documentPlant != undefined) {
+                        var template = kendo.template($("#view-download-template").html());
+                        var documentType = (row.documentTypeCode == '@CQSAirborne.Model.Core.Constants.DocumentType.Global') ? @((int)CQSAirborne.Model.Core.DocumentOperationType.Common) : @((int)CQSAirborne.Model.Core.DocumentOperationType.Document);
+                        return template({ displayName: documentPlant.documentDisplayName, id: documentPlant.id, canDownload: documentPlant.canDownload, documentType: documentType  });
+                    }
+
+                    return "";
+                }
+            });
+        });
+
+        columns.push({
+            "data": null,
+            //"defaultContent": "<button type='button' class='btn btn-primary' onclick='getEditData(data)'>Edit</button>",
+            "mRender": function (data, type, row) {
+                var template = "<a href='/Document/Edit/" + row.id + "'> <i class='fa fa-pencil'></i></a><a href=\"javascript: onclick=OpenPopupWithUrl('../../Document/EmailDocument/" + row.id + "')\"> <i  class='fa fa-envelope'></i></a><a onclick='DeleteDocument(" + row.id + ")'> <i  class='fa fa-trash'></i></a>";
+                //var template = "<a href='/Document/Edit/" + row.id + "'> <i class='fa fa-pencil'></i></a><a href=\"javascript: onclick=OpenPopupWithUrl('../../Document/EmailDocument/" + row.id +"')\"> <i  class='fa fa-envelope'></i></a>";
+                return template;
+            },
+            "searchable": false,
+            "orderable": false,
+            "className" : "center-content"
+        });
+
+        grid = $('#example').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": true,
+            "pageLength": 100,
+            "scrollX": true,
+            "scrollY": '503px',
+            "scrollCollapse": true,
+            "columns": columns,
+            "fixedColumns": {
+                leftColumns: 4
+            },
+            "order": [[ 0, 'asc' ]],
+            "columnDefs": [
+                {
+                    render: function (data, type, full, meta) {
+                        return "<div class='text-wrap text-left tableHeaderWidth-130'>" + $.trim(data) + "</div>";
+                    },
+                    targets: 0
+                },
+                {
+                    render: function (data, type, full, meta) {
+                        return "<div class='text-wrap tableHeaderWidth-230 text-left'>" + $.trim(data) + "</div>";
+                    },
+                    targets: 1
+                },
+                {
+                    render: function (data, type, full, meta) {
+                        return "<div class='text-left text-wrap tableProcessOwnerHeaderWidth'>" + $.trim(data) + "</div>";
+                    },
+                    targets: 4
+                },
+                {
+                    render: function (data, type, full, meta) {
+                        return "<div class='text-wrap tableHeaderWidth-230 text-left'>" + $.trim(data) + "</div>";
+                    },
+                    targets: 3
+                },
+                { width: 5, targets: 0 },
+                {
+                    render: function (data, type, full, meta) {
+                        return "<div class='text-wrap width-100 text-left'>" + $.trim(data) + "</div>";
+                    },
+                    targets: 2
+                },
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "error": function (xhr, error, code) {
+                    //debugger;
+                    if (code == "Unauthorized") {
+                       // toastr.error("Session Timeout.");
+
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                       // logoutWeb('@Url.Action("LogOut", "Account")');
+                    }
+                }
+            }
+        });
+    });
+
+
+    function ChangeDocStatus(id, status) {
+        $("#BoxId").val(id);
+        $("#BoxStatus").val(status);
+
+        if (status == false) {
+            $("#divNotify").show();
+            $("#AlertMsg").text("Are you sure you want to inactive this document?");
+        }
+        else {
+            $("#divNotify").hide();
+            $("#AlertMsg").text("Are you sure you want to active this document?");
+        }
+        $('#myModal').modal('show');
+    }
+
+    $("#btnChangeStatus").click(function () {
+
+        var IsNotify = $("#IsNotify").prop("checked");
+
+        obj = {
+            id: $("#BoxId").val(),
+            status: $("#BoxStatus").val(),
+            isNotify: IsNotify
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: statusUrl,
+            data: obj,
+            success: function (response) {
+                $('#myModal').modal('hide');
+                if (response.status == true) {
+                    md.showNotification('Status changed successfully', 'success')
+                    grid.ajax.reload();
+                } else {
+                    md.showNotification('Unable to change the status. Please try again', 'danger')
+                }
+            }
+        })
+    });
+
+</script>
+
+<script id="active-template-doc" type="text/html">
+    #if(isActive==true){#
+    <button type="button" class="btn btn-sm btn-success" onclick="ChangeDocStatus(#:id#, false)">Active</button>
+    #} else {#
+    <button type="button" class="btn btn-sm btn-danger" onclick="ChangeDocStatus(#:id#, true)">Inactive</button>
+    #}#
+</script>
+
+<script type="text/html" id="view-download-template">
+    <div style="width:70px;text-align:center">
+        <button class="btn btn-secondary btn-sm dropdown-toggle dashboard-grid-fix-button" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            #=displayName#
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" target="_blank" href='/Home/ViewDocument/#:id#/#:documentType#'>View</a>
+            #if(canDownload == true){#
+            <a class="dropdown-item" download target='_blank' href='/Home/DownloadDocument/#:id#/#:documentType#'>Download</a>
+            #}#
+        </div>
+    </div>
+</script>
+@(await Html.PartialAsync("_CommonListPartial"))
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/SweetAlert/SweetAlert.js"></script>
+<script>
+    function DeleteDocument(id) {
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.getJSON("../../Document/Delete/" + id + "", function () {
+                    Swal.fire(
+                        'Deleted!',
+                        'Your file has been deleted.',
+                        'success'
+                    );
+                });
+            }
+        })
+    }
+        //$(document).ready(function () {
+        //    $('.sendmail').click(function () {
+        //        debugger
+        //        var val = $(this).attr('data-value');
+        //        OpenPopupWithUrl("../../Document/EmailDocument/" + val + "");
+        //    })
+        //});
+</script>

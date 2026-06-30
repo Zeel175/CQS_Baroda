@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- AutoMapper is OK -->
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+
+		<!-- Remove FluentValidation.AspNetCore (belongs only in Web/API project) -->
+		<!-- Remove Microsoft.Extensions.Identity.Stores -->
+
+		<!-- If you use simple FluentValidation models, use the core package -->
+		<PackageReference Include="FluentValidation" Version="11.9.0" />
+		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" />
+	</ItemGroup>
+
+</Project>

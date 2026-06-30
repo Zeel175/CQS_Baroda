@@ -1,0 +1,718 @@
+﻿@using System.Security.Claims
+@using CQSAirborne.Web.Mvc.Utils
+@using Newtonsoft.Json;
+@using static CQSAirborne.Model.Core.Constants;
+@using CQSAirborne.Model.Core;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="~/assets/img/client/favicon.png">
+    @*<meta http-equiv="Content-Security-Policy" content="img-src 'self' blob:; object-src blob: ; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ">*@
+    @*<meta http-equiv="Content-Security-Policy" content="worker-src blob:; child-src blob: gap:; img-src 'self' blob: data:; default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">*@
+    <meta http-equiv="Content-Security-Policy" content="worker-src blob:;object-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' blob: data:; default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>
+        @ViewData["CurrentPage"] - QMS
+    </title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+    <!--     Fonts and icons     -->
+    @*<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />*@
+    <link href="~/assets/Font-Awesome-4.7.0/css/font-awesome.css" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link href="~/assets/css/material-dashboard.css" rel="stylesheet" />
+    <link href="~/css/Custom.css" rel="stylesheet" />
+    <link href="~/lib/dataTable/dataTables.bootstrap4.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap-tagsinput.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/toastr.min.css">
+    <link href="~/Multiselect/css/fSelect.css" rel="stylesheet" />
+	<link href="~/select2/select2.min.css" rel="stylesheet" />
+
+    <!--   Core JS Files   -->
+    <script src="~/assets/js/core/jquery.min.js"></script>
+    @*<script src="~/assets/js/latestJS/jquery.min.js"></script>*@
+    <script src="~/assets/js/core/popper.min.js"></script>
+    <script src="~/assets/js/core/bootstrap-material-design.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap-tagsinput.min.js"></script>
+    <script src="~/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="~/assets/js/plugins/moment.min.js"></script>
+    <script src="~/assets/js/plugins/jquery.validate.min.js"></script>
+    <script src="~/assets/js/plugins/jquery.bootstrap-wizard.js"></script>
+    <script src="~/assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/plugins/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/plugins/bootstrap-notify.js"></script>
+    <script src="~/assets/js/material-dashboard.js?v=2.1.1" type="text/javascript"></script>
+    <script src="~/lib/lodash/core.js"></script>
+    <script src="~/js/common.js"></script>
+    <script src="~/js/toastr.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <!--Upload Library-->
+    <script src="~/lib/dropzone/dropzone.js"></script>
+    <!--Editor Library-->
+    <script src="~/lib/ckeditor/ckeditor.js"></script>
+    <!--Kendo Library-->
+    <script src="~/lib/kendo/kendo.core.min.js"></script>
+    <script src="~/lib/kendo/kendo.data.min.js"></script>
+    <script src="~/lib/kendo/kendo.ui.core.min.js"></script>
+    <link href="~/lib/kendo/kendo.common-material.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/kendo.custom.material.css" rel="stylesheet" />
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+
+    <script src="~/Multiselect/js/fSelect.js"></script>
+
+    <script src="~/select2/select2.full.min.js"></script>
+    <script type="text/html" id="clickablePathTemplate">
+        <li class="breadcrumb-item">
+            # if(isLastElement == false){ #
+            <a href='/Home/Index/#=id#'>#=name#</a>
+            # } else { #
+            <a href='javascript:void(0)' class="text-black">#=name#</a>
+            # }#
+
+        </li>
+    </script>
+    <style>
+        .bootstrap-tagsinput {
+            background-color: #fff;
+            border-bottom: 1px solid #ccc !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            box-shadow: none !important;
+            display: inline-block;
+            padding: 5px 6px;
+            color: #555 !important;
+            vertical-align: middle;
+            border-radius: inherit;
+            width: 608px;
+            line-height: 25px;
+            cursor: text;
+        }
+
+            .bootstrap-tagsinput .tag {
+                background-color: #fff;
+                border: 1px solid #ccc;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+                display: inline-block;
+                padding: 4px 6px;
+                color: #555 !important;
+                vertical-align: middle;
+                border-radius: 4px;
+                max-width: 100%;
+                line-height: 22px;
+                cursor: text;
+            }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #444;
+            line-height: 34px;
+        }
+
+    </style>
+    <script>
+        $("html").on("keypress", ".form-control", function (e) {
+            //$(".form-control").keypress(function (e) {
+            //debugger;
+            if (!$(this).hasClass('ignoreKeyPress') && $(this).val() == "") {
+
+                var keyCode = e.keyCode || e.which;
+
+                //Regex for Valid Characters i.e. Alphabets and Numbers.
+                //var regex = /^[A-Za-z0-9]+$/;
+                var regex = /^[a-zA-Z0-9,/.()]+/;
+                //Validate TextBox value against the Regex.
+                var isValid = regex.test(String.fromCharCode(keyCode));
+                if (keyCode == 47) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    //$("#lblError").html("Only Alphabets and Numbers allowed.");
+                }
+
+
+                return isValid;
+            }
+        });
+    </script>
+    <script type="text/html" id="breadCrumbTemplate">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                #=generatedPath#
+            </ol>
+        </nav>
+    </script>
+</head>
+<body class="">
+    <div class="wrapper ">
+        <div class="sidebar" data-color="azure" data-background-color="white" data-image="/assets/img/sidebar-1.jpg">
+            <!--
+                Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+
+                Tip 2: you can also add an image using data-image tag
+            -->
+            <div class="logo">
+                <a href="/" class="simple-text logo-normal">
+                    <img src="~/assets/img/client/OneStop_New.png" style="width:190px;margin-top: -15px;" />
+                </a>
+            </div>
+            <div class="sidebar-wrapper">
+                @{
+                    var permissionModel = JsonConvert.DeserializeObject<List<dynamic>>(User.Claims.FirstOrDefault(x => x.Type.Equals("Permission", StringComparison.OrdinalIgnoreCase)).Value);
+                }
+                <ul class="nav" id="navigation">
+                    <li class='nav-item  @(ViewData["Title"]=="Home Page" && (ViewData.Model != null && ViewData.Model.CategoryId != null && (ViewData.Model.CategoryId == null || ViewData.Model.CategoryId == 0)) ? "active" : "")'>
+                        <a class="nav-link" href='@Url.Action("Index", "Home", new { id = 0 })'>
+                            <i class="fa fa-dashboard"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li class='nav-item @(ViewData["Title"]=="Home Page" && (ViewData != null && ViewData.Model != null && ViewData.Model.CategoryId != null && ViewData.Model.CategoryId == 1008) ? "active" : "")'>
+                        <a class="nav-link" href='../../Home/Index/1008'>
+                            <i class="fa fa-podcast"></i>
+                            <p>Quality Alerts</p>
+                        </a>
+                    </li>
+                    <li class='nav-item @(ViewData["Title"]=="Home Page" && (ViewData != null && ViewData.Model != null && ViewData.Model.CategoryId != null && ViewData.Model.CategoryId == 1009) ? "active" : "")'>
+                        <a class="nav-link" href='../../Home/Index/1009'>
+                            <i class="fa fa-file"></i>
+                            <p>Company Credentials</p>
+                        </a>
+                    </li>
+                    <li class='nav-item @(ViewData["Title"]=="Home Page" && (ViewData != null && ViewData.Model != null && ViewData.Model.CategoryId != null && ViewData.Model.CategoryId == 1010) ? "active" : "")'>
+                        <a class="nav-link" href='../../Home/Index/1010'>
+                            <i class="fa fa-file-archive-o"></i>
+                            <p>Standards</p>
+                        </a>
+                    </li>
+                    <li class='nav-item @(ViewData["Title"]=="Home Page" && (ViewData != null && ViewData.Model != null && ViewData.Model.CategoryId != null && ViewData.Model.CategoryId == 1011) ? "active" : "")'>
+                        <a class="nav-link" href='../../Home/Index/1011'>
+                            <i class="fa fa-headphones"></i>
+                            <p>Training and Support</p>
+                        </a>
+                    </li>
+                    <li class='nav-item @(ViewData["Title"]=="Home Page" && (ViewData != null && ViewData.Model != null && ViewData.Model.CategoryId != null && ViewData.Model.CategoryId == 3177) ? "active" : "")'>
+                        <a class="nav-link" href='../../Home/Index/3177'>
+                            <i class="fa fa-bank"></i>
+                            <p>Audit Management</p>
+                        </a>
+                    </li>
+                    @if (User.Identity.IsAuthenticated && ((ClaimsIdentity)User.Identity).GetSpecificClaim("OrgRole") == "Admin")
+                    {
+                        <li class='nav-item @(ViewData["CurrentPage"]=="Plant" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("Index", "Plant")'>
+                                <i class="fa fa-home"></i>
+                                <p>Plant</p>
+                            </a>
+                        </li>
+
+                        <li class='nav-item @(ViewData["CurrentPage"]=="ExternalLink" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("Index", "ExternalLink")'>
+                                <i class="fa fa-link"></i>
+                                <p>External Link</p>
+                            </a>
+                        </li>
+                        <li class='nav-item @(ViewData["CurrentPage"]=="Category" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("Index", "Category")'>
+                                <i class="fa fa-calendar"></i>
+                                <p>Category</p>
+                            </a>
+                        </li>
+                        <li class='nav-item @(ViewData["CurrentPage"]=="Document" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("Index", "Document")'>
+                                <i class="fa fa-file"></i>
+                                <p>Document</p>
+                            </a>
+                        </li>
+                        <li class='nav-item @(ViewData["CurrentPage"]=="CPR Master" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("Index", "CPR")'>
+                                <i class="fa fa-file"></i>
+                                <p>CPR Master</p>
+                            </a>
+                        </li>
+
+                        <li class='nav-item @(ViewData["CurrentPage"]=="CPR Form" ? "active" : "")'>
+                <a class="nav-link" href='@Url.Action("CreateCPR", "CPR")'>
+                    <i class="fa fa-search"></i>
+                    <p>CPR Form</p>
+                </a>
+            </li>
+                        <li class='nav-item @(ViewData["CurrentPage"]== "EmailDocuments" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("PendingEmail", "Document")'>
+                                <i class="fa fa-envelope"></i>
+                                <p>Email Documents</p>
+                            </a>
+                        </li>
+                        <li class='nav-item @(ViewData["CurrentPage"] == "Employee" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("Index", "Employee")'>
+                                <i class="fa fa-user"></i>
+                                <p>Employee</p>
+                            </a>
+                        </li>
+                        @*<li class='nav-item @(ViewData["CurrentPage"] == "Customer" ? "active" : "")'>
+                <a class="nav-link" href='@Url.Action("Index", "Customer")'>
+                    <i class="fa fa-users"></i>
+                    <p>Customer</p>
+                </a>
+            </li>*@
+                        <li class='nav-item @(ViewData["CurrentPage"]=="TASLCount" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("TASLCount", "Category")'>
+                                <i class="fa fa-bar-chart"></i>
+                                <p>TASL PCF Count</p>
+                            </a>
+                        </li>
+                        <li class='nav-item @(ViewData["CurrentPage"]== "MasterPCFTracker" ? "active" : "")'>
+                            <a class="nav-link" href='@Url.Action("ViewDocuments", "Document")'>
+                                <i class="fa fa-file-excel-o"></i>
+                                <p>Master PCF Tracker</p>
+                            </a>
+                        </li>
+
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.Role) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.Role) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "Role" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "Role")'>
+                                    <i class="fa fa-suitcase"></i>
+                                    <p>Role</p>
+                                </a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.Plant) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.Plant) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "Plant" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "Plant")'>
+                                    <i class="fa fa-home"></i>
+                                    <p>Plant</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.ExternalLink) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.ExternalLink) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "ExternalLink" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "ExternalLink")'>
+                                    <i class="fa fa-link"></i>
+                                    <p>External Link</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.Category) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.Category) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "Category" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "Category")'>
+                                    <i class="fa fa-calendar"></i>
+                                    <p>Category</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.Document) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.Document) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "Document" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "Document")'>
+                                    <i class="fa fa-file"></i>
+                                    <p>Document</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.CPRMaster) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.CPRMaster) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "CPR Master" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "CPR")'>
+                                    <i class="fa fa-file"></i>
+                                    <p>CPR Master</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.CPRAddFormMaster) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "CPR Form" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("CreateCPR", "CPR")'>
+                                    <i class="fa fa-search"></i>
+                                    <p>CPR Form</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.EmailDocuments) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.EmailDocuments) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "EmailDocuments" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("PendingEmail", "Document")'>
+                                    <i class="fa fa-envelope"></i>
+                                    <p>Email Documents</p>
+                                </a>
+                            </li>
+                        }
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.Employee) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.Employee) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"] == "Employee" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("Index", "Employee")'>
+                                    <i class="fa fa-user"></i>
+                                    <p>Employee</p>
+                                </a>
+                            </li>
+                        }
+                        @*if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.Add, ScreenCode.Customer) == true || PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.Customer) == true)
+            {
+                <li class='nav-item @(ViewData["CurrentPage"] == "Customer" ? "active" : "")'>
+                    <a class="nav-link" href='@Url.Action("Index", "Customer")'>
+                        <i class="fa fa-users"></i>
+                        <p>Customer</p>
+                    </a>
+                </li>
+            }*@
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.TASLPCFCount) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"]=="TASLCount" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("TASLCount", "Category")'>
+                                    <i class="fa fa-bar-chart"></i>
+                                    <p>TASL PCF Count</p>
+                                </a>
+                            </li>
+                        }
+
+                        if (PermissionChecker.CheckAccess(permissionModel, Constants.PermissionTypeConstant.List, ScreenCode.MasterPCFTracker) == true)
+                        {
+                            <li class='nav-item @(ViewData["CurrentPage"]== "MasterPCFTracker" ? "active" : "")'>
+                                <a class="nav-link" href='@Url.Action("ViewDocuments", "Document")'>
+                                    <i class="fa fa-file-excel-o"></i>
+                                    <p>Master PCF Tracker</p>
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="main-panel">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+                <div class="container-fluid">
+                    <div class="navbar-wrapper">
+                        @*<a class="navbar-brand" href="javascript:void(0)">@ViewData["PageHeader"]</a>*@
+                        <img src="~/assets/img/client/CQS_New_Logo.png" style="width:215px; height: 70px" />
+
+                        <div class="tasl-logo">
+                            <img src="~/assets/img/client/TTAdvance_New.png" />
+                        </div>
+                    </div>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="navbar-toggler-icon icon-bar"></span>
+                        <span class="navbar-toggler-icon icon-bar"></span>
+                        <span class="navbar-toggler-icon icon-bar"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-end">
+                        <a href="@Url.Action("GlobalSearch","Home")" class="btn btn-white btn-round btn-just-icon">
+                            <i class="fa fa-search"></i>
+                            <div class="ripple-container"></div>
+                        </a>
+                        <ul class="navbar-nav">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link" href="#pablo" id="navbarDropdownProfile" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-user"></i>
+                                    <p class="d-lg-none d-md-block">
+                                        Account
+                                    </p>
+                                </a>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
+                                        <a class="dropdown-item" href="javascript:void(0)" style="background: aliceblue;font-size: 13px;font-weight: bold;">@(((ClaimsIdentity)User.Identity).GetSpecificClaim("EmpName"))</a>
+                                        @*<a class="dropdown-item" href="#">Profile</a>
+                                            <a class="dropdown-item" href="#">Settings</a>
+                                            <div class="dropdown-divider"></div>*@
+                                        @Html.ActionLink("Logout", "Logout", "Account", null, new { @class = "dropdown-item" })
+                                        @Html.ActionLink("Change Pasword", "ChangePassword", "Account", null, new { @class = "dropdown-item" })
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
+                                        @Html.ActionLink("Login", "Login", "Account", null, new { @class = "dropdown-item" })
+                                    </div>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- End Navbar -->
+            <div class="content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/SweetAlert/SweetAlert.js"></script>
+    <script>
+        var idleTime = 0;
+        $(document).ready(function () {
+            //$('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
+
+            $().ready(function () {
+                $sidebar = $('.sidebar');
+
+                $sidebar_img_container = $sidebar.find('.sidebar-background');
+
+                $full_page = $('.full-page');
+
+                $sidebar_responsive = $('body > .navbar-collapse');
+
+                window_width = $(window).width();
+
+                fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
+
+                if (window_width > 767 && fixed_plugin_open == 'Dashboard') {
+                    if ($('.fixed-plugin .dropdown').hasClass('show-dropdown')) {
+                        $('.fixed-plugin .dropdown').addClass('open');
+                    }
+
+                }
+
+                $('.fixed-plugin a').click(function (event) {
+                    // Alex if we click on switch, stop propagation of the event, so the dropdown will not be hide, otherwise we set the  section active
+                    if ($(this).hasClass('switch-trigger')) {
+                        if (event.stopPropagation) {
+                            event.stopPropagation();
+                        } else if (window.event) {
+                            window.event.cancelBubble = true;
+                        }
+                    }
+                });
+
+                $('.fixed-plugin .active-color span').click(function () {
+                    $full_page_background = $('.full-page-background');
+
+                    $(this).siblings().removeClass('active');
+                    $(this).addClass('active');
+
+                    var new_color = $(this).data('color');
+
+                    if ($sidebar.length != 0) {
+                        $sidebar.attr('data-color', new_color);
+                    }
+
+                    if ($full_page.length != 0) {
+                        $full_page.attr('filter-color', new_color);
+                    }
+
+                    if ($sidebar_responsive.length != 0) {
+                        $sidebar_responsive.attr('data-color', new_color);
+                    }
+                });
+
+                $('.fixed-plugin .background-color .badge').click(function () {
+                    $(this).siblings().removeClass('active');
+                    $(this).addClass('active');
+
+                    var new_color = $(this).data('background-color');
+
+                    if ($sidebar.length != 0) {
+                        $sidebar.attr('data-background-color', new_color);
+                    }
+                });
+
+                $('.fixed-plugin .img-holder').click(function () {
+                    $full_page_background = $('.full-page-background');
+
+                    $(this).parent('li').siblings().removeClass('active');
+                    $(this).parent('li').addClass('active');
+
+
+                    var new_image = $(this).find("img").attr('src');
+
+                    if ($sidebar_img_container.length != 0 && $('.switch-sidebar-image input:checked').length != 0) {
+                        $sidebar_img_container.fadeOut('fast', function () {
+                            $sidebar_img_container.css('background-image', 'url("' + new_image + '")');
+                            $sidebar_img_container.fadeIn('fast');
+                        });
+                    }
+
+                    if ($full_page_background.length != 0 && $('.switch-sidebar-image input:checked').length != 0) {
+                        var new_image_full_page = $('.fixed-plugin li.active .img-holder').find('img').data('src');
+
+                        $full_page_background.fadeOut('fast', function () {
+                            $full_page_background.css('background-image', 'url("' + new_image_full_page + '")');
+                            $full_page_background.fadeIn('fast');
+                        });
+                    }
+
+                    if ($('.switch-sidebar-image input:checked').length == 0) {
+                        var new_image = $('.fixed-plugin li.active .img-holder').find("img").attr('src');
+                        var new_image_full_page = $('.fixed-plugin li.active .img-holder').find('img').data('src');
+
+                        $sidebar_img_container.css('background-image', 'url("' + new_image + '")');
+                        $full_page_background.css('background-image', 'url("' + new_image_full_page + '")');
+                    }
+
+                    if ($sidebar_responsive.length != 0) {
+                        $sidebar_responsive.css('background-image', 'url("' + new_image + '")');
+                    }
+                });
+
+                $('.switch-sidebar-image input').change(function () {
+                    $full_page_background = $('.full-page-background');
+
+                    $input = $(this);
+
+                    if ($input.is(':checked')) {
+                        if ($sidebar_img_container.length != 0) {
+                            $sidebar_img_container.fadeIn('fast');
+                            $sidebar.attr('data-image', '#');
+                        }
+
+                        if ($full_page_background.length != 0) {
+                            $full_page_background.fadeIn('fast');
+                            $full_page.attr('data-image', '#');
+                        }
+
+                        background_image = true;
+                    } else {
+                        if ($sidebar_img_container.length != 0) {
+                            $sidebar.removeAttr('data-image');
+                            $sidebar_img_container.fadeOut('fast');
+                        }
+
+                        if ($full_page_background.length != 0) {
+                            $full_page.removeAttr('data-image', '#');
+                            $full_page_background.fadeOut('fast');
+                        }
+
+                        background_image = false;
+                    }
+                });
+
+                $('.switch-sidebar-mini input').change(function () {
+                    $body = $('body');
+
+                    $input = $(this);
+
+                    if (md.misc.sidebar_mini_active == true) {
+                        $('body').removeClass('sidebar-mini');
+                        md.misc.sidebar_mini_active = false;
+
+                        $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
+
+                    } else {
+
+                        $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar('destroy');
+
+                        setTimeout(function () {
+                            $('body').addClass('sidebar-mini');
+
+                            md.misc.sidebar_mini_active = true;
+                        }, 300);
+                    }
+
+                    // we simulate the window Resize so the charts will get updated in realtime.
+                    var simulateWindowResize = setInterval(function () {
+                        window.dispatchEvent(new Event('resize'));
+                    }, 180);
+
+                    // we stop the simulation of Window Resize after the animations are completed
+                    setTimeout(function () {
+                        clearInterval(simulateWindowResize);
+                    }, 1000);
+
+                });
+            });
+
+
+                //Increment the idle time counter every minute.
+                var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+                //Zero the idle timer on mouse movement.
+                $(this).mousemove(function (e) {
+                    idleTime = 0;
+                });
+                $(this).keypress(function (e) {
+                    idleTime = 0;
+                });
+
+        });
+
+        var isActive = true;
+
+        $(window).focus(function () { isActive = true; });
+        $(window).blur(function () { isActive = false; });
+
+        function timerIncrement() {
+            idleTime = idleTime + 1;
+            console.log(isActive)
+            console.log(idleTime)
+            if (isActive == false) {
+                idleTime = 0;
+            }
+
+            if (idleTime > 29 && isActive == true) // 30 minutes
+            {
+                var
+                    closeInSeconds = 56,
+                    displayText = "I will close in #1 seconds.",
+                    timer;
+
+
+                //debugger;
+                Swal.fire({
+                    title: 'Are you sure you want to Logout?',
+                    text: displayText.replace("#1", closeInSeconds),
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes',
+                    timer: closeInSeconds * 1000,
+                    allowEscapeKey: false,
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.value) {
+                        debugger;
+                        window.location.href = '@Url.Action("LogOut", "Account")';
+                    }
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        debugger;
+                        console.log('I was closed by the timer')
+                        window.location.href = '@Url.Action("LogOut", "Account")';
+                    }
+                })
+                
+            }
+            timer = setInterval(function () {
+
+                closeInSeconds--;
+
+                if (closeInSeconds < 0) {
+
+                    clearInterval(timer);
+                }
+                if (displayText != undefined && displayText != "" && closeInSeconds != NaN) {
+                    $('.swal2-html-container').text(displayText.replace("#1", closeInSeconds));
+                }
+
+            }, 1000);
+        }
+
+        var editorUploadUrl = '@Url.Action("ImageUpload","Home")'
+    </script>
+    <script>
+        $.get("../../ExternalLink/_GetExternalLinksPartial", function (data) {
+            $("#navigation").append(data);
+        })
+
+
+        try {
+            //  toastr.options.fadeOut = 5000;
+        } catch{ }
+    </script>
+    <div id="uploadDialog" style="display:none">
+    </div>
+    <script type="text/html" id="uploadTemplate">
+        <img src="#=imageSrc#" height="#=height#" width="#=width#" />
+    </script>
+</body>
+</html>

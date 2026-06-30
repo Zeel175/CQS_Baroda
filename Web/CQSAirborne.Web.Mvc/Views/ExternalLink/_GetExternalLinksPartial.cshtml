@@ -1,0 +1,9 @@
+﻿@model IEnumerable<CQSAirborne.Model.ExternalLink.AddEditExternalLinkModel>
+@foreach (var links in Model)
+{
+<li class='nav-item'>
+    <a class="nav-link" href='@links.Url' target="_blank">
+        <p>@links.Name</p>
+    </a>
+</li>
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>CPR Notification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body style="margin:0; padding:0; background:#eef2f7; font-family:Segoe UI, Arial, sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7; padding:30px 0;">
+<tr>
+<td align="center">
+
+<table width="650" cellpadding="0" cellspacing="0"
+       style="background:#ffffff; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.08); overflow:hidden;">
+
+    <!-- Header -->
+    <tr>
+        <td style="background:linear-gradient(90deg,#007bff,#0056b3); padding:25px; color:white;">
+            <div style="font-size:20px; font-weight:600;">
+                CPR Workflow Notification
+            </div>
+            <div style="font-size:13px; opacity:0.9; margin-top:5px;">
+                Change Proposal Request Update
+            </div>
+        </td>
+    </tr>
+
+    <!-- Body -->
+    <tr>
+        <td style="padding:30px;">
+
+            <p style="font-size:14px; color:#444;">
+                Hello,
+            </p>
+
+            <p style="font-size:14px; color:#444;">
+                The following CPR request has been updated in the system:
+            </p>
+
+            <!-- Card -->
+            <table width="100%" cellpadding="0" cellspacing="0"
+                   style="background:#f8fafc; border-radius:8px; padding:20px; margin-top:15px;">
+
+                <tr>
+                    <td style="padding:6px 0;">
+                        <b>CPR Number:</b> #CPRNumber#
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:6px 0;">
+                        <b>Title:</b> #CPRTitle#
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:6px 0;">
+                        <b>Submitted By:</b> #SubmittedBy#
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:6px 0;">
+                        <b>Status:</b>
+                        <span style="
+                            display:inline-block;
+                            padding:5px 12px;
+                            border-radius:20px;
+                            font-size:12px;
+                            font-weight:600;
+                            color:white;
+                            background:#STATUSCOLOR#;">
+                            #Status#
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:6px 0;">
+                        <b>Action Date:</b> #ActionDate#
+                    </td>
+                </tr>
+
+                <!--<tr>
+                    <td style="padding:6px 0;">
+                        <b>Approver:</b> #ApproverName#
+                    </td>
+                </tr>-->
+
+                #RemarksSection#
+
+            </table>
+
+            <!-- Button -->
+            <div style="text-align:center; margin-top:30px;">
+                <a href="#ViewLink#"
+                   style="
+                        background:#007bff;
+                        color:white;
+                        padding:12px 28px;
+                        border-radius:6px;
+                        text-decoration:none;
+                        font-size:14px;
+                        font-weight:600;
+                        display:inline-block;">
+                    View CPR in System
+                </a>
+            </div>
+
+            <hr style="margin:30px 0; border:none; border-top:1px solid #e3e8ef;" />
+
+            <p style="font-size:12px; color:#888;">
+                This is an automated notification from QMS System.
+                Please do not reply to this email.
+            </p>
+
+        </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+        <td style="background:#f1f4f8; padding:15px; text-align:center; font-size:12px; color:#666;">
+            © #Year# QMS System | All Rights Reserved
+        </td>
+    </tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>

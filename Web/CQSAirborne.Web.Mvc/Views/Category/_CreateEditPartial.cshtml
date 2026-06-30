@@ -1,0 +1,109 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.Dropdown
+@using CQSAirborne.Web.Infrastructure.Helpers.Editor
+@model CQSAirborne.Model.Category.AddEditCategoryModel
+
+<script>
+    function onCategoryTypeChange() {
+        var categoryElement = $("#CategoryTypeId").data("kendoDropDownList");
+        var primaryCategoryElement = $("#PrimaryCategoryId").data("kendoDropDownList");
+        if (categoryElement.dataItem().code == "CAT_SC") {
+            primaryCategoryElement.readonly(false);
+        } else {
+            primaryCategoryElement.readonly(true);
+            primaryCategoryElement.value("");
+        }
+    }
+</script>
+
+@using (Html.BeginForm(FormMethod.Post, true, new { }))
+{
+    <div class="form-row">
+        <div class="col-6">
+            @Html.RequiredLabelFor(w => w.Code)
+            @Html.TextBoxFor(w => w.Code, new { @class = "form-control", @readonly = true })
+            @Html.ValidationMessageFor(w=>w.Code)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.Name)
+            @Html.TextBoxFor(w => w.Name, new { @class = "form-control" })
+            @Html.ValidationMessageFor(w => w.Name)
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-12">
+            @Html.LabelFor(w => w.Description)
+            @(Html.TextEditorFor(w => w.Description)
+                                    .HtmlAttributes(new { @class = "form-control" })
+                                    .Render()
+            )
+            @Html.ValidationMessageFor(w => w.Description)
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-6">
+
+            @Html.RequiredLabelFor(w => w.CategoryTypeId)
+            @(Html.KendoDropDownListFor(w => w.CategoryTypeId)
+                                                                    .Read(Url.Action("GetCategoryTypes", "Category"))
+                                                                    .DataTextField("name")
+                                                                    .DataValueField("id")
+                                                                    .OnChange("onCategoryTypeChange")
+                                                                    .OnDataBound("onCategoryTypeChange")
+                                                                    .OptionLabel("Select Category Type..")
+                                                                    .HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                                                    .Render())
+            @Html.ValidationMessageFor(w => w.CategoryTypeId)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.PrimaryCategoryId)
+            @(Html.KendoDropDownListFor(w => w.PrimaryCategoryId)
+                                        .Read(Url.Action("GetAllCategory", "Category", new { @id = Model.Id }))
+                                        .DataTextField("name")
+                                        .DataValueField("id")
+                                        .OptionLabel("Select Primary Category..")
+                                        .HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+                                        .Render())
+            @Html.ValidationMessageFor(w => w.PrimaryCategoryId)
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-12">
+            @Html.LabelFor(w => w.Remark)
+            @Html.TextAreaFor(w => w.Remark, new { @class = "form-control ignoreKeyPress" })
+            @Html.ValidationMessageFor(w => w.Remark)
+        </div>
+        <div class="col-6">
+            @Html.LabelFor(w => w.DisplayOrder)
+            @Html.TextBoxFor(w => w.DisplayOrder, new { @class = "form-control", @type = "number" })
+            @Html.ValidationMessageFor(w => w.DisplayOrder)
+        </div>
+
+        <div class="col-6">
+            <div class="form-check">
+                <label class="form-check-label">
+                    @Html.CheckBoxFor(w => w.IsAvailableForDownload, new { @class = "form-check-input" })
+                    @*<input class="form-check-input" name="IsAvailableForDownload" id="IsAvailableForDownload" type="checkbox">*@
+                    <span class="form-check-sign">
+                        <span class="check"></span>
+                    </span>
+                    Is Available For Download?
+                </label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-row">
+        <div class="col-12">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </div>
+}
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

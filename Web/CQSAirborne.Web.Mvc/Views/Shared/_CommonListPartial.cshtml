@@ -1,0 +1,11 @@
+﻿@{ 
+    Layout = null;
+}
+
+<script id="active-template" type="text/html">
+    #if(isActive==true){#
+    <button type="button" class="btn btn-sm btn-success" onclick="md.changeStatus(#:id#, false)">Active</button>
+    #} else {#
+    <button type="button" class="btn btn-sm btn-danger" onclick="md.changeStatus(#:id#, true)">Inactive</button>
+    #}#
+</script>

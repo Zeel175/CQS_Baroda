@@ -1,0 +1,39 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.DropZone
+@model CQSAirborne.Model.Category.EditorUploadModel
+@{
+    Layout = null;
+}
+
+<div class="col-11">
+    @(Html.UploadFor(w => w.TempUploadId)
+                        .UploadUrl(Url.Action("Upload", "Document", new { @uploadType = CQSAirborne.Model.Core.UploadType.TemporaryImages }))
+                        .HtmlAttributes(new { @class = "fallback dropzone" })
+                        .Render())
+</div>
+
+<div class="col-5">
+    @Html.LabelFor(w => w.Height)
+    @Html.TextBoxFor(w => w.Height, new { @class = "form-control" })
+</div>
+
+<div class="col-5">
+    @Html.LabelFor(w => w.Width)
+    @Html.TextBoxFor(w => w.Width, new { @class = "form-control"})
+</div>
+
+<div class="form-row">
+    <div class="col-11">
+        <input type="button" onclick="insertImage()" value="Insert Image" class="btn btn-primary" />
+    </div>
+</div>
+
+<script>
+    function insertImage() {
+        var uploadWindow = $("#uploadDialog");
+        var editor = uploadWindow.data("editorInstance")
+        var template = kendo.template($("#uploadTemplate").html());
+        var result = template({ imageSrc: '@Url.Action("TemporaryImages", "Home")' + '/' + $("#TempUploadId").val(), height: $("#Height").val(), width: $("#Width").val() });
+        editor.insertHtml(result);
+        uploadWindow.data('kendoWindow').close();
+    }
+</script>

@@ -1,0 +1,194 @@
+﻿.k-header > .text-info {
+    font-weight: 600 !important;
+    text-transform: uppercase;
+}
+
+.table thead tr th {
+    font-size: 17px;
+    line-height: 23px !important;
+    font-weight: bold;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-align:center !important;
+}
+
+.table tbody tr td, .table tbody tr th {
+    padding: 5px !important;
+    font-size: 13px;
+}
+
+
+
+BODY {
+    height: 100%;
+    /*margin: 10px;*/
+    font-weight: normal;
+    font-size: 14px;
+    color: #333333;
+}
+
+.GridViewScrollHeader TH, .GridViewScrollHeader TD {
+    padding: 10px;
+    font-weight: normal;
+    white-space: nowrap;
+    border-right: 1px solid #e6e6e6;
+    border-bottom: 1px solid #e6e6e6;
+    background-color: #F4F4F4;
+    color: #999999;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+.GridViewScrollItem TD {
+    padding: 10px;
+    white-space: nowrap;
+    border-right: 1px solid #e6e6e6;
+    border-bottom: 1px solid #e6e6e6;
+    background-color: #FFFFFF;
+    color: #444444;
+}
+
+.GridViewScrollItemFreeze TD {
+    padding: 10px;
+    white-space: nowrap;
+    border-right: 1px solid #e6e6e6;
+    border-bottom: 1px solid #e6e6e6;
+    background-color: #FAFAFA;
+    color: #444444;
+}
+
+.GridViewScrollFooterFreeze TD {
+    padding: 10px;
+    white-space: nowrap;
+    border-right: 1px solid #e6e6e6;
+    border-top: 1px solid #e6e6e6;
+    border-bottom: 1px solid #e6e6e6;
+    background-color: #F4F4F4;
+    color: #444444;
+}
+
+#panelbar > li > ul :hover {
+    background-color: #fff;
+    color: unset;
+}
+
+.dropdown-item:hover {
+    background-color: #00bcd4 !important;
+}
+/*.table {
+    margin-bottom:0px !important;
+}
+
+.freezer-example {
+    box-shadow: 0px 0px 2px 2px #ccc;
+}*/
+#panelbar > li > ul > li > span {
+    padding-top: 10px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.table thead th {
+    background: #09b6cc !important;
+    color: #fff !important;
+    text-align:center !important;
+}
+
+.table-bordered th, .table-bordered td {
+    border: none !important;
+    border-bottom: 1px solid #ccc !important;
+    border-left: 1px solid #ccc !important;
+}
+
+.table-striped > tbody > tr:nth-child(even) > td {
+    background-color: #f5f5f5;
+}
+
+.table-striped > tbody > tr:nth-child(even) > th {
+    background-color: #f5f5f5;
+}
+
+
+.sidebar-wrapper::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 3px;
+    background-color: #F5F5F5;
+}
+
+.sidebar-wrapper::-webkit-scrollbar {
+    width: 3px;
+    background-color: #F5F5F5;
+}
+
+.sidebar-wrapper::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #00bcd4;
+}
+
+.text-warning > td > a {
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+    .text-warning > td > a:hover {
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #00bcd4 !important;
+    }
+
+
+.GridViewScrollItem > th:hover {
+    z-index: 999999 !important;
+    opacity: 1 !important;
+}
+
+@media(min-width:768px) {
+    .LoginBoxRight {
+        right: 20px;
+        position: absolute !important;
+    }
+
+    .visible-xs {
+        display: none;
+    }
+}
+
+@media(max-width:768px) {
+    .hidden-xs {
+        display: none;
+    }
+
+    .mbSize{
+        text-align:center !important;
+    }
+
+    .mbAlign{
+        float:none !important;
+    }
+}
+
+@media(min-width:1600px) {
+    .LoginBoxRight {
+        right: 20px;
+        position: absolute !important;
+        min-height:700px !important;
+    }
+}
+
+.tableHeaderWidth-130 {
+    width: 130px !important;
+    max-width: 130px !important;
+}
+
+.tableHeaderWidth-230 {
+    width: 230px !important;
+    max-width: 230px !important;
+}
+
+.tableProcessOwnerHeaderWidth {
+    width: 115px !important;
+    max-width: 115px !important;
+}

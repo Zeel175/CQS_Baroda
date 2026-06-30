@@ -1,0 +1,8 @@
+﻿@model CQSAirborne.Model.Category.AddEditCategoryModel
+@{
+    ViewData["Title"] = "Category";
+    ViewData["CurrentPage"] = "Category";
+    ViewData["PageHeader"] = "Create Category";
+}
+
+@(await Html.PartialAsync("_CreateEditPartial"))

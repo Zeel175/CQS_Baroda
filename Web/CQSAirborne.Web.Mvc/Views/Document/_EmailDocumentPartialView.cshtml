@@ -1,0 +1,37 @@
+﻿
+@model CQSAirborne.Model.Document.SendEmailModel
+@{
+    Layout = null;
+}
+
+<form asp-action="EmailDocument" asp-controller="Document" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-loading="#spinner">
+    @Html.HiddenFor(m => m.id)
+    @Html.HiddenFor(m => m.IsSendLater)
+    <div class="form-row">
+        <div class="col-12">
+            @Html.LabelFor(m => m.DocumentType):
+            <div class="form-control">
+                <label><input type="radio" name="DocumentType" value="New Release" /> New Release</label>
+                <label><input type="radio" name="DocumentType" value="Revised" /> Revised</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            @Html.LabelFor(m => m.SpecificPersonEmail)
+            @Html.TextAreaFor(m => m.SpecificPersonEmail, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <span id="spinner" style="display:none;"><i class="fa fa-spinner"></i></span>
+        </div>
+    </div>
+</form>
+<script>
+    var onComplete = function () {
+        closePopup();
+        window.location.href="../../Document"
+    }
+</script>

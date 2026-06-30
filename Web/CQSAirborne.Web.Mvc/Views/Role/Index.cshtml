@@ -1,0 +1,161 @@
+﻿
+@{
+    ViewData["Title"] = "Role";
+    ViewData["CurrentPage"] = "Role";
+    ViewData["PageHeader"] = "Role";
+    //Layout =  null;
+}
+
+<link href="~/Vendor/Jquery-Popup/css/popup.css" rel="stylesheet" />
+@(await Html.PartialAsync("~/Views/Shared/Components/PopupWindow/_PopupWindowPartial.cshtml"))
+
+<style>
+    .btnRemove {
+        width: 30px;
+    }
+
+    .fixWidthCustom
+    {
+        width:100px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header card-header-primary card-header-container">
+                <h4 class="card-title">Roles</h4>
+
+                <div class="card-header-actions" style="float: right;">
+                    <a href='@Url.Action("Create","Role")' class="btn btn-warning">
+                        <i class="fa fa-plus"></i>
+                        Add New
+                    </a>
+                </div>
+
+            </div>
+            <div class="card-body">
+                <div class="row ErrorMsg" style="margin-bottom:10px;display:none">
+                    <div class="col-md-12" style="background-color:#ffcc00;padding:15px;font-weight:bold;">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="roleGrid" class="table table-striped table-bordered nowrap" cellspacing="0" style="width:100%">
+                        <thead class="text-primary">
+                            <tr>
+                                <th style="color:white">Name</th>
+                                <th style="color:white;width: 100px;">Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-unobstusive/jquery-unbostrusive.js"></script>
+<script src="~/Vendor/Jquery-Popup/js/popup.js"></script>
+<script src="~/lib/SweetAlert/SweetAlert.js"></script>
+<script>
+
+    var dataUrl = '@Url.Action("GetRoleData", "Role")';
+    var statusConfirmMsg = 'Are you sure you want to change the status of this role?';
+
+    var grid;
+
+    function GridData() {
+
+             grid = $('#roleGrid').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": true,
+            "pageLength": 100,
+            "scrollX": true,
+            "scrollY": '350px',
+            "columns": [
+                { "data": "roleName" },
+                {
+                    "data": null,
+                    "mRender": function (data, type, row) {
+                        return "<a href='/Role/Edit/" + row.id + "'> <i class='fa fa-pencil'></i></a>"
+                    },
+                    "searchable": false,
+                    "orderable": false,
+                    "className": "center-content fixWidthCustom"
+                }
+            ],
+            "ajax": {
+                "url": dataUrl,
+                "type": "POST",
+                "error": function (xhr, error, code) {
+                    //debugger;
+                    if (code == "Unauthorized") {
+                        Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                    }
+                }
+            }
+         });
+     }
+
+
+        $(document).ready(function () {
+
+            GridData();
+
+            @*$("html").on("click", ".btnRemove", function () {
+
+                var conf = confirm("Are you sure to remove this role?")
+                if (conf) {
+
+                    var obj = {
+                        Id: $(this).attr("data-val")
+                    }
+                    //debugger;
+                    $.post("@Url.Action("deleteRole", "Role")", obj, function (result) {
+
+                        //debugger;
+                        var $data = result;
+
+                        if ($data.isSuccess == true) {
+                            $(".ErrorMsg").children().text("Successfully removed");
+                            $(".ErrorMsg").show();
+
+                            try {
+                                grid = $('#roleGrid').DataTable();
+                                grid.destroy();
+                                GridData();
+                            }
+                            catch (e) { }
+                        }
+                        else {
+
+                            $(".ErrorMsg").children().text($data.error);
+                            $(".ErrorMsg").show();
+
+                        }
+
+                    });
+
+                }
+                return false;
+
+            });*@
+
+        });
+
+</script>

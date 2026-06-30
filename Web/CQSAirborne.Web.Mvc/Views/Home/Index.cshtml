@@ -1,0 +1,471 @@
+﻿@using CQSAirborne.Model.Dashboard
+@model DashboardModel
+@{
+    ViewData["Title"] = "Home Page";
+    ViewData["PageHeader"] = "Dashboard";
+
+    if(Model != null && Model.ClickablePath != null && Model.ClickablePath.Count() > 0)
+    {
+        ViewData["CurrentPage"] = Model.ClickablePath?.FirstOrDefault()?.DocFullName ?? Model.ClickablePath?.FirstOrDefault()?.Name;
+    }
+    else {
+        ViewData["CurrentPage"] = "Home";
+    }
+}
+
+<script src="~/js/gridviewscroll.js"></script>
+@*<link href="~/css/web.css" rel="stylesheet" />*@
+<script src="~/lib/multifreeze/multifreeze.js"></script>
+<link href="~/lib/multifreeze/multifreeze.css" rel="stylesheet" />
+<style>
+    .k-link {
+        padding: 0 !important
+    }
+
+    tr:hover {
+        background-color: rgba(95, 232, 202, 0.34)
+    }
+
+
+
+    /*.table-fixed thead {
+        width: 97%;
+    }
+
+    .table-fixed tbody {
+        height: 230px;
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    .table-fixed thead, .table-fixed tbody, .table-fixed tr, .table-fixed td, .table-fixed th {
+        display: block;
+    }
+
+    .table-fixed tbody td, .table-fixed thead > tr > th {
+        float: left;
+        border-bottom-width: 0;
+    }*/
+
+</style>
+<style>
+    /*common*/
+    .freezer-example {
+        width: 100%;
+        height: @(Model.CategoryId==0?"auto":"600px");
+        max-height:@(Model.CategoryId==0?"300px":"600px");
+        overflow: auto !important;
+        margin: 1em auto !important;
+    }
+
+    .table tbody th {
+        background: white;
+        font-weight: normal;
+        font-size: 0.6875rem
+    }
+
+    .table thead th {
+        background:black;
+        color:white
+    }
+    .table col {
+        width: 90px !important;
+    }
+    .table col:nth-child(-n+3) {
+        width:70px !important;
+        font-size:16px !important;
+        font-weight:600;
+
+    }
+    .table col:nth-child(-n+2) {
+        width:250px !important;
+        font-size:16px !important;
+        font-weight:600;
+    }
+     .table col:nth-child(-n+1) {
+        width:200px !important;
+        font-size:16px !important;
+        font-weight:600;
+    }
+    .table col:last-child{
+        width:120px !important;
+        white-space: normal;
+    }
+    .table{
+        overflow-x:auto
+    }
+    .dashboard-grid-fix-button {
+        width: 50px;
+        padding: 0px !important;
+    }
+    .container{
+        max-width:100% !important
+    }
+
+    .table-bordered{
+        border: 1px solid #ccc !important;
+    }
+    .k-state-selected, .k-draghandle.k-state-selected:hover {
+       color: black !important;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12" id="breadCrumbContainer">
+    </div>
+    <div class="col-md-12">
+        <div id="panelbar"></div>
+    </div>
+</div>
+
+<script>
+    var navigationData = @Html.Raw(Json.Serialize(Model.ClickablePath));
+    var navigationTemplate = generateBreadCrumbPath(navigationData, @Model.CategoryId);
+    $("#breadCrumbContainer").html(navigationTemplate);
+    //debugger;
+    var homogeneous = new kendo.data.HierarchicalDataSource({
+        transport: {
+            read: {
+                url: '@Url.Action("DashboardCategories","Home", new { id = Model.CategoryId })',
+                dataType: "json"
+            }
+        },
+        schema: {
+            model: {
+                id: "categoryId",
+                hasChildren: "hasChildCategory"
+            }
+        }
+    });
+    var isFirstTimeLoad = true;
+    $("#panelbar").kendoPanelBar({
+        expandMode: "single",
+        dataSource: homogeneous,
+        dataTextField: "FullName",
+        dataBound: function (e) {
+            $("#panelbar .k-header").click(function (e) {
+                var listElement = $(this).closest("li.k-item");
+                if ($(listElement).attr("aria-expanded") == "true") {
+                    $("#panelbar").data("kendoPanelBar").collapse(listElement);
+                }
+            });
+
+            if (e.sender.dataItems().length > 0 && isFirstTimeLoad == true) {
+                isFirstTimeLoad = false;
+                var firstElement = $("[data-uid=" + e.sender.dataItems()[0].uid + "]");
+                e.sender.expand(firstElement);
+            }
+        },
+        template: function (data, va) {
+            //console.log(data.item);
+            if (data.item.hasChildren) {
+                //debugger;
+                var categoryClass = "";
+                if (data.item.categoryType == "Primary") {
+                    categoryClass = "text-info";
+                } else {
+                    categoryClass = "text-warning"
+                }
+
+                return "<div class='" + categoryClass+"'>" + data.item.name+ "</div>";
+            } else {
+                //Get the external template definition using a jQuery selector
+                var template = kendo.template($("#subCategoryTemplate").html());
+
+                var htmlTemplate = "";
+                if (data.item.htmlTemplate != null && data.item.htmlTemplate != undefined) {
+                    htmlTemplate = data.item.htmlTemplate;
+                }
+
+                //Create some dummy data
+                var templateData = { id: data.item.categoryId, htmlTemplate: htmlTemplate, hasDocument: data.item.hasDocument, hasSubCategory: data.item.hasSubCategory };
+
+                var result = template(templateData); //Execute the template
+                return result;
+            }
+        },
+        activate: function (e) {
+
+           // debugger;
+            var options = new GridViewScrollOptions();
+            options.elementID = "list-documents-1";
+            options.width = 380;
+            options.height = 300;
+            options.freezeColumn = true;
+            options.freezeFooter = true;
+            options.freezeColumnCssClass = "GridViewScrollItemFreeze";
+            options.freezeFooterCssClass = "GridViewScrollFooterFreeze";
+            options.freezeColumnCount = 3;
+
+            gridViewScroll = new GridViewScroll(options);
+            gridViewScroll.enhance();
+
+            var data = $("#panelbar").data("kendoPanelBar").dataItem(e.item)
+            var categoryElementId = "#list-subcategory-" + data.categoryId;
+            var documentElementId = "#list-documents-" + data.categoryId;
+            var documentContainerElementId = "#list-documents-container-" + data.categoryId;
+            $(documentContainerElementId).empty();
+            if ($(categoryElementId).length > 0) {
+                if (!$.fn.dataTable.isDataTable($(categoryElementId))) {
+                    $(categoryElementId).DataTable({
+                        "searching": false,
+                        "processing": true,
+                        "paging": false,
+                        "serverSide": true,
+                        "columns": [
+                            { "data": "displayOrder" },
+                            { "data": "id" },
+                            {
+                                "data": "name",
+                                //"defaultContent": "<button type='button' class='btn btn-primary' onclick='getEditData(data)'>Edit</button>",
+                                "mRender": function (data, type, row) {
+                                    return "<a href='/Home/Index/" + row.id + "' > " + row.name + "</a>"
+                                    // target='_blank' //Requested By : Dayana //Mail date: 5 Dec 25 
+                                },
+                                "searchable": true,
+                                "orderable": true
+                            }
+                        ],
+                        "columnDefs": [
+                            {
+                                "targets": [0],
+                                "visible": false,
+                                "searchable": false
+                            },
+                            {
+                                "targets": [1],
+                                "visible": false,
+                                "searchable": false
+                            }
+                        ],
+                        "createdRow": function (row, data, dataIndex) {
+                            if (data.categoryType == "Primary") {
+                                $(row).addClass("text-info")
+                            } else {
+                                $(row).addClass("text-warning")
+                            }
+                        },
+                        "ajax": {
+                            "url": '/Home/GetSubCategories/' + data.id,
+                            "type": "POST",
+                            "error": function (xhr, error, code) {
+                            //debugger;
+                                if (code == "Unauthorized") {
+                                    Swal.fire({
+                            title: 'Session Expired!',
+                            icon: 'error',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok',
+                            allowEscapeKey: true
+                        }).then((result) => {
+                            if (result.value) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                logoutWeb('@Url.Action("LogOut", "Account")');
+                            }
+                        })
+                            }
+                        }
+                        }
+                    });
+                }
+            }
+
+            if ($(documentContainerElementId).length > 0) {
+
+                $.ajax({
+                    url: '/Home/GetDocuments/' + data.id,
+                    type: 'POST',
+                    success: function (documentResposne) {
+                        var documentPlants = [];
+                        if (documentResposne.data && documentResposne.data.length > 0) {
+                            documentPlants = documentResposne.data.map(function (s) {
+                                return s.plants;
+                            }).reduce(function (a, b) {
+                                return a.concat(b)
+                            }).map(function (s) {
+                                return { plantId: s.plantId, plantAlias: s.plantAlias, displayOrder: s.displayOrder }
+                            });
+                        }
+
+                        var distinctPlants = [];
+                        $.each(documentPlants, function (i, v) {
+                            var isNotExists = distinctPlants.filter(function (s) {
+                                return s.plantId == v.plantId;
+                            }).length == 0;
+                            if (isNotExists == true) {
+                                distinctPlants.push(v);
+                            }
+                        });
+                        //debugger;
+                        distinctPlants = _.sortBy(distinctPlants, "displayOrder");
+                        //Get the external template definition using a jQuery selector
+                        var template = kendo.template($("#document-plant-template").html());
+                        var documentPlantResult = template({ id: data.categoryId, plants: distinctPlants, documents: documentResposne.data });
+                        $(documentContainerElementId).html(documentPlantResult)
+                        if (distinctPlants.length>5)
+                            LoadFreezeTable();
+
+                    }
+                })
+            }
+
+        }
+    });
+
+    function GetPlantTemplateForDocument(documentTypeCode, checkDocument, plant) {
+        var documentPlant = checkDocument.filter(function (s) {
+            return s.plantId == plant.plantId;
+        })[0];
+
+        if (documentPlant != undefined && documentPlant != null) {
+            var template = kendo.template($("#view-download-template").html());
+            var documentType = (documentTypeCode == '@CQSAirborne.Model.Core.Constants.DocumentType.Global') ? @((int)CQSAirborne.Model.Core.DocumentOperationType.Common) : @((int)CQSAirborne.Model.Core.DocumentOperationType.Document);
+            return template({ displayName: documentPlant.documentDisplayName, id: documentPlant.id, canDownload: documentPlant.canDownload, documentType: documentType });
+        }
+        return "";
+    }
+
+    function ConvertNullToString(stringValue) {
+        if (stringValue == undefined || stringValue == null || stringValue == "")
+            return "";
+        return stringValue;
+    }
+</script>
+
+<script type="text/html" id="view-download-template">
+    <div>
+        <button class="btn btn-secondary btn-sm dropdown-toggle dashboard-grid-fix-button" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;font-size:14px; ">
+            #=displayName#
+        </button>
+        <div class="dropdown-menu">
+            @* target="_blank" *@@* //Requested By : Dayana //Mail date: 5 Dec 25 *@
+            <a class="dropdown-item"  href='/Home/ViewDocument/#:id#/#:documentType#'>View</a>
+            <a style="" href="@(ViewBag.WebPath)" data-id="#:id#" data-doctype="#:documentType#" onclick="return CopySelectedText(this)" class='dropdown-item'>Copy Link</a>
+            #if(canDownload == true){#
+            <a class="dropdown-item" download target='_blank' href='/Home/DownloadDocument/#:id#/#:documentType#'>Download</a>
+            #}#
+        </div>
+    </div>
+</script>
+
+
+<script type="text/x-kendo-template" id="subCategoryTemplate">
+    <div class="container" style="box-sizing: border-box !important;">
+        <div class="row">
+            <div class="col-lg-12" id="html-template-#:id#">
+                #=htmlTemplate#
+            </div>
+        </div>
+        # if (hasSubCategory == true) { #
+        <div class="row">
+            <div class="col-lg-12" style="max-width:94% !important">
+                <div class="table-responsive hide-table-info">
+                    <table id="list-subcategory-#:id#" class="table subcategory-table" cellspacing="0" style="width:100%">
+                        <thead class="text-primary" style="display:none">
+                            <tr>
+                                <th></th>
+                                <th style="display:none">Id</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        #}#
+        # if (hasDocument == true) { #
+        <div class="row" id="list-documents-container-#:id#">
+
+        </div>
+        #}#
+    </div>
+</script>
+
+<script type="text/html" id="document-plant-template">
+
+    <div class="col-lg-12" style="background-color:white;max-width:98% !important;">
+        <div class="hide-table-info freezer-example">
+            <table id="list-documents-#:id#" class="table table-condensed table-freeze-multi table-bordered center-table table-striped" cellspacing="0" data-cols-number="3" style="min-height:100px !important">
+                <colgroup>
+                    <col>
+                    <col>
+                    <col>
+                    # for (var i = 0; i < plants.length; i++) { #
+                    <col>
+                    # } #
+                    <col>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Doc. Unique No.</th>
+                        <th>Document Name</th>
+                        <th>Rev. No.</th>
+                        # for (var i = 0; i < plants.length; i++) { #
+                        <th style="white-space:normal;padding-left: 8px;padding-right: 8px;">#=  plants[i].plantAlias #</th>
+                        # } #
+                        <th>Process Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    # for (var i = 0; i < documents.length; i++) { #
+                    <tr class="GridViewScrollItem">
+                        <th style="font-size:15px !important">#=ConvertNullToString(documents[i].documentNumber)#</th>
+                        <th style="text-align:left !important;font-size:15px !important">#=ConvertNullToString(documents[i].name)#</th>
+                        <th style="font-size:15px !important; white-space:normal;">#=ConvertNullToString(documents[i].revisionNumber)#</th>
+                        # for (var j = 0; j < plants.length; j++) { #
+                        <td>#= GetPlantTemplateForDocument(documents[i].documentTypeCode, documents[i].plants,plants[j]) #</td>
+                        # } #
+                        <td style="text-align:left !important; white-space:normal;">#=ConvertNullToString(documents[i].processOwner)#</td>
+                    </tr>
+                    # } #
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</script>
+
+<style>
+    .k-panelbar > .k-item > .k-link {
+        padding: 12px 12px !important;
+    }
+
+    .k-panelbar > .k-item > .k-state-selected {
+        color: black !important;
+    }
+
+    .col-lg-12 {
+        padding-left: 0px !important;
+    }
+
+    .label {
+        margin: .0rem !important;
+    }
+</style>
+
+<script>
+    function CopySelectedText(e) {
+        debugger;
+        var str = $(e).attr('href');
+        var str1 = $(e).attr('data-id');
+        var str2 = $(e).attr('data-doctype');
+
+        var copyText = str + str1 + '/' + str2;
+
+        document.addEventListener('copy', function (e) {
+            e.clipboardData.setData('text/plain', copyText);
+            e.preventDefault();
+        }, true);
+
+        document.execCommand('copy');
+        console.log('copied text : ', copyText);
+        toastr.success('Copied Text!!');
+        return false;
+    }
+</script>

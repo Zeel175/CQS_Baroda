@@ -1,0 +1,370 @@
+﻿@using CQSAirborne.Web.Infrastructure.Helpers.DropZone
+@using CQSAirborne.Web.Infrastructure.Helpers.Dropdown
+@using CQSAirborne.Web.Infrastructure.Helpers.DatePicker
+@using CQSAirborne.Web.Infrastructure.Helpers.Editor
+@using CQSAirborne.Web.Infrastructure.Helpers.MultiSelect
+@using CQSAirborne.Model.Core
+@using CQSAirborne.Model.CPRMaster
+@model CQSAirborne.Model.Document.AddEditDocumentModel
+
+@{
+	var nonStdIds = (ViewBag.NonStandardCategories as IEnumerable<NonStandardCategoryModel>)?.Select(x => x.Id) ?? Enumerable.Empty<int>();
+}
+<script>
+	// IDs of categories where CPR Number is NOT required
+	const NON_STD_CAT_IDS = @Html.Raw(Json.Serialize(nonStdIds));
+</script>
+
+<link href="~/lib/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/lib/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+<link href="~/lib/bootstrap/dist/css/bootstrap-tagsinput.css" rel="stylesheet" />
+<script src="~/lib/bootstrap/dist/js/bootstrap-tagsinput.js"></script>
+<script>
+	var dataUrl = '@Url.Action("GetUploadedDocuments", "Document", new { @sessionId = Model.SessionId })';
+	var uploadUrl = '@Url.Action("UploadDocumentToSession", "Document", new { @sessionId = Model.SessionId })';
+	var deleteSessionUrl = '@Url.Action("DeleteDocumentFromSession", "Document", new { @sessionId = Model.SessionId })';
+	var deleteSingleFromSessionUrl = '@Url.Action("DeleteSingleDocumentFromSession", "Document")';
+	var sessionId = '@Model.SessionId';
+	var oldDocumentType = "@Model.DocumentTypeId";
+
+</script>
+<script src="~/js/document.js"></script>
+<style>
+	.label-info {
+		background-color: #5bc0de;
+	}
+
+	.hidden {
+		display: none;
+	}
+</style>
+@Html.AntiForgeryToken()
+@Html.HiddenFor(w => w.Id)
+@Html.HiddenFor(w => w.SessionId)
+@Html.HiddenFor(w => w.OldRevId)
+<div class="form-row">
+
+	<div class="col-6 @(Model.Id != null && Model.Id > 0 ?"":"hidden")">
+		@Html.LabelFor(w => w.Code)
+		@Html.TextBoxFor(w => w.Code, new { @class = "form-control", @readonly = true })
+		@Html.ValidationMessageFor(w => w.Code)
+	</div>
+	<div class="col-6">
+		@Html.RequiredLabelFor(w => w.Name)
+		@Html.TextBoxFor(w => w.Name, new { @class = "form-control" })
+		@Html.ValidationMessageFor(w => w.Name)
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-6">
+		@Html.RequiredLabelFor(w => w.CategoryId)
+		@(Html.KendoDropDownListFor(w => w.CategoryId)
+				.Read(Url.Action("GetAllCategory", "Category"))
+				.DataTextField("name")
+				.DataValueField("id")
+				.OptionLabel("Select Category..")
+				.OnChange("onCategoryChange")
+				.HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+				.Render())
+
+		@Html.ValidationMessageFor(w => w.CategoryId)
+	</div>
+	<div class="col-6">
+		@Html.LabelFor(w => w.PrimaryCategory)
+		@Html.TextBoxFor(w => w.PrimaryCategory, new { @class = "form-control", @readonly = true })
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-6">
+		@Html.RequiredLabelFor(w => w.DocumentNumber)
+		@Html.TextBoxFor(w => w.DocumentNumber, new { @class = "form-control" })
+		@Html.ValidationMessageFor(w => w.DocumentNumber)
+	</div>
+	<div class="col-6">
+		<input type="hidden" value="@Model.RevisionNumber" id="OldRevisionNo" />
+		@Html.RequiredLabelFor(w => w.RevisionNumber)
+		@Html.TextBoxFor(w => w.RevisionNumber, new { @class = "form-control" })
+		@Html.ValidationMessageFor(w => w.RevisionNumber)
+	</div>
+</div>
+
+<div class="form-row">
+	<div class="col-6">
+		@Html.RequiredLabelFor(w => w.ReasonForChange)
+		@Html.TextAreaFor(w => w.ReasonForChange, new { @class = "form-control" })
+	</div>
+	<div class="col-6">
+		@Html.LabelFor(w => w.CPRNumber) <span id="cpr-required-star" class="text-danger" style="display:none;"> *</span>
+		@* @Html.TextBoxFor(w => w.CPRNumber, new { @class = "form-control", id = "CPRNumber" }) *@
+		<select class="form-control" asp-for="CPRMasterId" type="number">
+			<option id="" value="">--Select--</option>
+			@if (ViewBag.CPRList != null)
+			{
+				foreach (var item in ViewBag.CPRList)
+				{
+					if (Model != null && Model.Id != null && Model.CPRMasterId != null && Model.CPRMasterId == item.Id)
+					{
+						<option id="@item.Id" selected value="@item.Id">@item.CPRUniqueCode</option>
+					}
+					else
+					{
+						<option id="@item.Id" value="@item.Id">@item.CPRUniqueCode</option>
+					}
+				}
+			}
+		</select>
+	</div>
+</div>
+
+<div class="form-row">
+	<div class="col-6">
+		@Html.LabelFor(w => w.UploadDate)
+		@(Html.KendoDatePickerFor(w => w.UploadDate).HtmlAttributes(new { @class = "form-control", @style = "width:100%" }).Format("dd-MMM-yyyy").Render())
+		@Html.ValidationMessageFor(w => w.UploadDate)
+	</div>
+	<div class="col-6">
+		@Html.RequiredLabelFor(w => w.Alias)
+		@Html.TextBoxFor(w => w.Alias, new { @class = "form-control" })
+		@Html.ValidationMessageFor(w => w.Alias)
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-12">
+		@Html.LabelFor(w => w.ProcessOwner)
+		@Html.TextAreaFor(w => w.ProcessOwner, new { @class = "form-control" })
+		@Html.ValidationMessageFor(w => w.ProcessOwner)
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-12">
+		@Html.LabelFor(w => w.Remarks)
+		@Html.TextAreaFor(w => w.Remarks, new { @class = "form-control" })
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-12">
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-6">
+		@Html.LabelFor(w => w.DocumentTypeId)
+		@(Html.KendoDropDownListFor(w => w.DocumentTypeId)
+				.Read(Url.Action("GetAllDocumentType", "Document"))
+				.DataTextField("name")
+				.DataValueField("id")
+				.OptionLabel("Select Document Type..")
+				.OnChange("onDocumentTypeChange")
+				.HtmlAttributes(new { @class = "form-control", style = "width: 100%" })
+				.Render())
+		@Html.ValidationMessageFor(w => w.Plants)
+	</div>
+	<div class="col-6">
+		<div class="bs-example">
+			@Html.LabelFor(w => w.Tags)
+			<input id="Tags" class="form-control" asp-for="Tags" type="text" data-role="tagsinput" />
+		</div>
+	</div>
+	<div class="col-6 @(Model.OldRevId != null && Model.OldRevId != 0 ? "" : "hidden")" id="rowInActiveDate">
+		@Html.LabelFor(w => w.InActiveDate)
+		@(Html.KendoDatePickerFor(w => w.InActiveDate).HtmlAttributes(new { @class = "form-control", @style = "width:100%" }).Format("dd-MMM-yyyy").Render())
+	</div>
+</div>
+<div>
+	<div class="form-row">
+		<div class="col-12">
+			@Html.LabelFor(w => w.Plants)
+			<select name="Plants" id="Plants" multiple="multiple" class="form-control"></select>
+			@Html.ValidationMessageFor(w => w.Plants)
+		</div>
+
+		<div class="col-12">
+			@(Html.UploadFor(w => w.DocumentId)
+						.UploadUrl(Url.Action("Upload", "Document", new { @uploadType = UploadType.Document }))
+						.HtmlAttributes(new { @class = "fallback dropzone" })
+						.Render())
+			@Html.ValidationMessageFor(w => w.DocumentId)
+		</div>
+	</div>
+	<button class="btn btn-sm btn-info" type="button" onclick="uploadDocumentTosession()">Upload Document</button>
+	<div class="table-responsive hide-table-info">
+		<table id="list-documents" class="table " cellspacing="0" width="100%">
+			<thead class="text-primary">
+				<tr>
+					<th>Name</th>
+					<th>Plants</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	@Html.ValidationMessageFor(w => w.Uploads)
+</div>
+<div class="form-row">
+	<div class="col-12">
+		<input type="submit" value="Save" class="btn btn-primary" onclick="return submitBtn();" id="btnSave" />
+		<input type="submit" value="Save & Send" class="btn btn-primary" id="SaveSend" /><span id="spinner" style="display:none;"><i class="fa fa-spinner"></i></span>
+	</div>
+</div>
+<script type="text/html" id="uploadGridControlsTemplate">
+	<a href='javascript:void(0)' onclick="deleteDocumentFromSession('#=id#', '#=sessionId#')"><i class='fa fa-remove'></i></a>
+</script>
+<script>
+	// $('#CPRMasterId').select2({
+	//   selectOnClose: true
+	// });
+	function submitBtn() {
+		debugger;
+		$("input, select, textarea, button").removeAttr("disabled");
+	}
+</script>
+<script>
+	var plantDataSource = new kendo.data.DataSource({
+		transport: {
+			read: {
+				url: '@Url.Action("GetPlantList", "Plant")',
+				dataType: "json"
+			}
+		}
+	});
+
+	var plantElement = $('#Plants');
+	plantElement.kendoListView({
+		dataSource: plantDataSource,
+		template: function (e) {
+			var renderTemplate = kendo.template($("#plantTemplate").html())
+			return renderTemplate(e);
+		},
+		dataBound: function () {
+			plantElement.multiselect({
+				includeSelectAllOption: true,
+				enableFiltering: true,
+				maxHeight: 300,
+				enableCaseInsensitiveFiltering: true,
+				numberDisplayed: 1
+			});
+			setPlantValue(@Html.Raw(Json.Serialize(Model.Plants)))
+		}
+	});
+</script>
+<script type="text/x-kendo-template" id="plantTemplate">
+	<option value="#:id#">
+		#:name#
+	</option>
+</script>
+<script>
+	$('#RevisionNumber').keyup(function (e) {
+		//debugger;
+		var oldRevision = $('#OldRevisionNo').val();
+		var revisionNo = $('#RevisionNumber').val();
+		var id = $('#Id').val();
+		if (oldRevision != revisionNo && id != null && id != '' && id > 0) {
+			$('#rowInActiveDate').removeClass('hidden');
+		}
+		else {
+			$('#rowInActiveDate').addClass('hidden');
+		}
+	});
+
+	if ("@Model.OldRevId" != null && "@Model.OldRevId" != 0) {
+		$("input, select, textarea, button").attr("disabled", "disabled");
+		$('#Name').removeAttr("disabled");
+		$('#InActiveDate').removeAttr("disabled");
+		$('#UploadDate').removeAttr("disabled");
+		$('#SaveSend').removeAttr("disabled");
+		$('#btnSave').removeAttr("disabled");
+	}
+</script>
+
+<script>
+	function setCprRequired(isRequired) {
+
+		const $cpr = $('#CPRNumber');
+
+		// Remove existing rule if exists
+		if ($cpr.rules) { $cpr.rules('remove', 'required'); }
+		$cpr.removeAttr('data-val-required');
+
+		// if (isRequired) {
+		//     // Add required rule dynamically
+		//     if ($cpr.rules) {
+		//         $cpr.rules('add', {
+		//             required: true,
+		//             messages: { required: 'CPR Number is required.' }
+		//         });
+		//     }
+		//     $cpr.attr('data-val', 'true');
+		//     $cpr.attr('data-val-required', 'CPR Number is required.');
+		//     $('#cpr-required-star').show();
+		// } else {
+		//     $('#cpr-required-star').hide();
+		//     $('#CPRNumber-error').text('')
+		// }
+
+		// // Trigger immediate validation check
+		// if ($cpr.valid) { $cpr.valid(); }
+	}
+
+	// $(document).on('change', '#CategoryId', function () {
+	//     //debugger;
+	//     const ddl = $("#CategoryId").data("kendoDropDownList");
+	//     const selectedId = parseInt(ddl.value() || '0');
+	//     const isNonStandard = NON_STD_CAT_IDS.includes(selectedId);
+	//     //setCprRequired(!isNonStandard); // CPR required only if not non-standard
+	// })
+
+	// Run once when page loads
+	// $(function () {
+	//     const init = function () {
+	//         const ddl = $("#CategoryId").data("kendoDropDownList");
+	//         if (!ddl) { return setTimeout(init, 50); }
+	//         onCategoryChange();
+	//     };
+	//     init();
+	// });
+
+	//     $(document).ready(function () {
+	//     $('#CategoryId').change();
+	// });
+
+</script>
+<script>
+
+	$(document).ready(function () {
+
+		$('#CPRMasterId').select2();
+
+
+		function triggerCategoryChangeSafely() {
+			debugger;
+			var ddl = $("#CategoryId").data("kendoDropDownList");
+			if (!ddl) {
+				setTimeout(triggerCategoryChangeSafely, 2000);
+				return;
+			}
+
+			//✅ Manually call with proper sender
+			onCategoryChange({ sender: ddl });
+		}
+
+		if("@Model.Id" != null && "@Model.Id" != 0  && "@Model.Id" > 0){
+				   setTimeout(triggerCategoryChangeSafely, 2000);
+		}
+
+				
+	});
+
+	
+			
+
+	// 	$(document).ready(function () {
+	// 		$('#CPRMasterId').empty().append('<option value="">--Select--</option>');
+
+	// 	$('#CPRMasterId').select2({
+	// 		placeholder: '--Select--',
+	// 		allowClear: true,
+	// 		width: '100%',
+	// 		selectOnClose: true
+	// 	});
+	// });
+</script>
+
