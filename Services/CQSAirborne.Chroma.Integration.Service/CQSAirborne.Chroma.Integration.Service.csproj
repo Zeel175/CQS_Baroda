@@ -27,6 +27,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\CQSAirborne.Model\CQSAirborne.Model.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Data.Contract\CQSAirborne.Data.Contract.csproj" />
+		<ProjectReference Include="..\..\Core\CQSAirborne.Data.Implementation\CQSAirborne.Data.Implementation.csproj" />
+		<ProjectReference Include="..\CQSAirborne.Services.Contract\CQSAirborne.Services.Contract.csproj" />
+		<ProjectReference Include="..\CQSAirborne.Services.Implementation\CQSAirborne.Services.Implementation.csproj" />
 	</ItemGroup>
 
 </Project>

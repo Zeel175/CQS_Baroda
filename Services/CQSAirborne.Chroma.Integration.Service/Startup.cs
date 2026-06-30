@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CQSAirborne.Chroma.Integration.Service.Helpers;
+using CQSAirborne.Services.Contract.ADSync;
+using CQSAirborne.Services.Implementation.ADSync;
+using CQSAirborne.Data.Contract;
+using CQSAirborne.Data.Implementation;
+using Microsoft.EntityFrameworkCore;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
@@ -35,8 +40,12 @@ namespace CQSAirborne.Chroma.Integration.Service
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddDbContext<IDataContext, CQSDataContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddTransient<EmployeeCsvService>();
             services.AddTransient<HangFIreService>();
+            services.AddTransient<IADUserSyncService, ADUserSyncService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "CQS Web API", Version = "v1" });
@@ -96,6 +105,11 @@ namespace CQSAirborne.Chroma.Integration.Service
             {
                 AppPath = "/scheduler",
             });
+
+            RecurringJob.AddOrUpdate<IADUserSyncService>(
+                "ad-user-sync-job",
+                service => service.SyncNewUsersAsync(),
+                Configuration.GetValue<string>("ADUserSync:CronExpression") ?? "*/5 * * * *");
 
             app.UseMvc(routes =>
             {

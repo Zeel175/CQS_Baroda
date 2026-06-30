@@ -14,10 +14,14 @@ using CQSAirborne.Services.API.Models;
 using CQSAirborne.Services.API.Utils;
 using CQSAirborne.Services.API.Validators;
 using CQSAirborne.Services.Contract;
+using CQSAirborne.Services.Contract.ADSync;
+using CQSAirborne.Services.Implementation.ADSync;
 using CQSAirborne.Web.Infrastructure.Contracts;
 using CQSAirborne.Web.Infrastructure.Implementation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -90,6 +94,24 @@ namespace CQSAirborne.Services.API
                 RepositoryModule.Register(services);
                 ServiceModule.Register(services);
                 DataModule.Register(Configuration, services);
+                services.AddTransient<IADUserSyncService, ADUserSyncService>();
+
+                services.AddHangfire(configuration => configuration
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")
+                        ?? Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+                    {
+                        PrepareSchemaIfNecessary = true,
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                        UseRecommendedIsolationLevel = true,
+                        UsePageLocksOnDequeue = true,
+                        DisableGlobalLocks = true,
+                    }));
+                services.AddHangfireServer();
 
                 services.AddSwaggerGen(c =>
                 {
@@ -189,6 +211,16 @@ namespace CQSAirborne.Services.API
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
                 //c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
             });
+
+            app.UseHangfireDashboard("/scheduler", new DashboardOptions
+            {
+                AppPath = "/swagger"
+            });
+
+            RecurringJob.AddOrUpdate<IADUserSyncService>(
+                "ad-user-sync-job",
+                service => service.SyncNewUsersAsync(),
+                Configuration.GetValue<string>("ADUserSync:CronExpression") ?? "*/5 * * * *");
 
             app.UseExceptionHandler(appError =>
             {
