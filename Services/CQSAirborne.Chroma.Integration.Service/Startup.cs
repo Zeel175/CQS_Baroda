@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
 
 namespace CQSAirborne.Chroma.Integration.Service
 {
@@ -47,13 +47,15 @@ namespace CQSAirborne.Chroma.Integration.Service
             services.AddTransient<IADUserSyncService, ADUserSyncService>();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "CQS Web API", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CQS Web API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT"
                 });
             });
             // Add Hangfire services.
