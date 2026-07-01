@@ -59,6 +59,8 @@ namespace CQSAirborne.Services.Implementation.ADSync
                                 var employee = new EmployeeEntity
                                 {
                                     EmployeeName = GetProperty(result, "name"),
+                                    GroupId = GetProperty(result, "description"),
+                                    EmpId = GetProperty(result, "employeeID"),
                                     OfficalEmpEmailID = GetProperty(result, "mail"),
                                     ADID = userName,
                                     UserName = userName,
@@ -116,6 +118,8 @@ namespace CQSAirborne.Services.Implementation.ADSync
             searcher.PropertiesToLoad.Add("userAccountControl");
             searcher.PropertiesToLoad.Add("department");
             searcher.PropertiesToLoad.Add("title");
+            searcher.PropertiesToLoad.Add("employeeID");
+            searcher.PropertiesToLoad.Add("description");
         }
 
         private List<string> GetLdapPaths()
